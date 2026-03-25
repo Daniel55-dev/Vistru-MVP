@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vistru — Remote Construction Supervision Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0B1F3A;
+  --navy-mid: #12305A;
+  --navy-light: #1A4272;
+  --gold: #C9922A;
+  --gold-light: #E8B04A;
+  --gold-pale: #F5E4C2;
+  --cream: #FAF7F2;
+  --white: #FFFFFF;
+  --slate: #5A6B7E;
+  --slate-light: #8FA3B8;
+  --border: #D8E2ED;
+  --green: #1A7A4A;
+  --green-pale: #E6F4ED;
+  --red: #C0392B;
+  --red-pale: #FDECEA;
+  --amber: #C9922A;
+  --amber-pale: #FEF5E7;
+  --shadow-sm: 0 2px 8px rgba(11,31,58,0.08);
+  --shadow-md: 0 8px 32px rgba(11,31,58,0.12);
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--navy); min-height:100vh; overflow-x:hidden; }
+
+/* NAV */
+nav { position:fixed; top:0; left:0; right:0; z-index:1000; background:rgba(11,31,58,0.97); backdrop-filter:blur(12px); border-bottom:1px solid rgba(201,146,42,0.2); display:flex; align-items:center; justify-content:space-between; padding:0 48px; height:64px; }
+.nav-logo { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--white); letter-spacing:-0.02em; }
+.nav-logo span { color:var(--gold); }
+.nav-tabs { display:flex; gap:4px; }
+.nav-tab { padding:8px 16px; border-radius:6px; font-size:0.82rem; font-weight:500; letter-spacing:0.02em; color:var(--slate-light); cursor:pointer; transition:all 0.2s; border:none; background:transparent; text-transform:uppercase; }
+.nav-tab:hover { color:var(--white); background:rgba(255,255,255,0.06); }
+.nav-tab.active { color:var(--gold); background:rgba(201,146,42,0.1); }
+.nav-cta { background:var(--gold); color:var(--navy); padding:9px 22px; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; letter-spacing:0.02em; text-transform:uppercase; }
+.nav-cta:hover { background:var(--gold-light); transform:translateY(-1px); }
+
+/* VIEWS */
+.view { display:none; padding-top:64px; min-height:100vh; }
+.view.active { display:block; }
+
+/* LANDING */
+#view-landing { background:var(--navy); }
+.hero { position:relative; overflow:hidden; min-height:calc(100vh - 64px); display:flex; align-items:center; padding:80px 48px; }
+.hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 60% 60% at 70% 50%, rgba(26,66,114,0.6) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 20% 80%, rgba(201,146,42,0.12) 0%, transparent 60%); }
+.hero-grid { position:absolute; inset:0; opacity:0.04; background-image:linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size:60px 60px; }
+.hero-content { position:relative; z-index:2; max-width:640px; animation:fadeUp 0.7s ease both; }
+.hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(201,146,42,0.15); border:1px solid rgba(201,146,42,0.3); color:var(--gold-light); padding:6px 14px; border-radius:20px; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:28px; }
+.hero-badge::before { content:'●'; font-size:0.5rem; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hero h1 { font-family:'Playfair Display',serif; font-size:clamp(2.8rem,5vw,4.2rem); font-weight:700; color:var(--white); line-height:1.1; letter-spacing:-0.03em; margin-bottom:24px; }
+.hero h1 em { color:var(--gold); font-style:normal; }
+.hero p { font-size:1.05rem; color:var(--slate-light); line-height:1.7; margin-bottom:40px; max-width:520px; }
+.hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
+.btn-primary { background:var(--gold); color:var(--navy); padding:14px 28px; border-radius:8px; font-size:0.9rem; font-weight:600; cursor:pointer; border:none; transition:all 0.25s; }
+.btn-primary:hover { background:var(--gold-light); transform:translateY(-2px); box-shadow:0 8px 24px rgba(201,146,42,0.35); }
+.btn-outline { background:transparent; color:var(--white); padding:14px 28px; border-radius:8px; font-size:0.9rem; font-weight:500; cursor:pointer; border:1px solid rgba(255,255,255,0.2); transition:all 0.25s; }
+.btn-outline:hover { border-color:rgba(255,255,255,0.5); background:rgba(255,255,255,0.05); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.stats-bar { background:rgba(255,255,255,0.04); border-top:1px solid rgba(255,255,255,0.07); border-bottom:1px solid rgba(255,255,255,0.07); padding:32px 48px; display:grid; grid-template-columns:repeat(4,1fr); gap:32px; }
+.stat { text-align:center; }
+.stat-number { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--gold); }
+.stat-label { font-size:0.78rem; color:var(--slate-light); margin-top:4px; letter-spacing:0.04em; text-transform:uppercase; }
+
+.section { padding:96px 48px; }
+.section-label { font-size:0.72rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
+.section-title { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,3vw,2.6rem); font-weight:700; color:var(--white); margin-bottom:16px; letter-spacing:-0.02em; }
+.section-sub { color:var(--slate-light); font-size:1rem; line-height:1.7; max-width:520px; margin-bottom:56px; }
+
+.steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px; }
+.step-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-lg); padding:32px; transition:all 0.3s; position:relative; overflow:hidden; }
+.step-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--gold), transparent); opacity:0; transition:opacity 0.3s; }
+.step-card:hover { border-color:rgba(201,146,42,0.3); background:rgba(255,255,255,0.06); transform:translateY(-4px); }
+.step-card:hover::before { opacity:1; }
+.step-number { font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--gold); font-weight:500; margin-bottom:16px; letter-spacing:0.1em; }
+.step-icon { font-size:1.8rem; margin-bottom:14px; }
+.step-card h3 { font-size:1rem; font-weight:600; color:var(--white); margin-bottom:10px; }
+.step-card p { font-size:0.875rem; color:var(--slate-light); line-height:1.65; }
+
+.fees-section { padding:96px 48px; background:rgba(255,255,255,0.02); }
+.fee-table { width:100%; border-collapse:collapse; margin-top:40px; background:rgba(255,255,255,0.03); border-radius:var(--radius-lg); overflow:hidden; }
+.fee-table th { background:rgba(201,146,42,0.12); padding:16px 24px; font-size:0.78rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--gold); text-align:left; border-bottom:1px solid rgba(201,146,42,0.2); }
+.fee-table td { padding:16px 24px; font-size:0.875rem; color:var(--slate-light); border-bottom:1px solid rgba(255,255,255,0.05); }
+.fee-table tr:last-child td { border-bottom:none; }
+.fee-table tr:hover td { background:rgba(255,255,255,0.03); color:var(--white); }
+.fee-badge { display:inline-block; background:rgba(201,146,42,0.15); color:var(--gold-light); padding:4px 10px; border-radius:4px; font-family:'DM Mono',monospace; font-size:0.8rem; font-weight:500; }
+
+.roles-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; margin-top:40px; }
+.role-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-lg); padding:28px 24px; cursor:pointer; transition:all 0.3s; text-align:center; }
+.role-card:hover { border-color:var(--gold); background:rgba(201,146,42,0.06); transform:translateY(-4px); }
+.role-icon { font-size:2.4rem; margin-bottom:14px; }
+.role-card h3 { font-size:1rem; font-weight:600; color:var(--white); margin-bottom:8px; }
+.role-card p { font-size:0.82rem; color:var(--slate-light); line-height:1.6; }
+.role-link { display:inline-flex; align-items:center; gap:6px; color:var(--gold); font-size:0.8rem; font-weight:600; margin-top:14px; cursor:pointer; }
+
+/* DASHBOARD */
+.dashboard { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 64px); }
+.sidebar { background:var(--navy); border-right:1px solid rgba(255,255,255,0.06); padding:0; position:sticky; top:64px; height:calc(100vh - 64px); overflow-y:auto; }
+.sidebar-header { padding:24px 20px 16px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.sidebar-user { display:flex; align-items:center; gap:12px; }
+.avatar { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,var(--gold),var(--navy-light)); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; color:var(--white); flex-shrink:0; }
+.user-name { font-size:0.9rem; font-weight:600; color:var(--white); }
+.user-role { font-size:0.72rem; color:var(--gold); font-weight:500; text-transform:uppercase; letter-spacing:0.06em; }
+.sidebar-nav { padding:16px 12px; }
+.nav-section-label { font-size:0.65rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--slate); padding:8px 8px 6px; }
+.sidebar-item { display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:8px; font-size:0.875rem; color:var(--slate-light); cursor:pointer; transition:all 0.2s; margin-bottom:2px; }
+.sidebar-item:hover { background:rgba(255,255,255,0.06); color:var(--white); }
+.sidebar-item.active { background:rgba(201,146,42,0.12); color:var(--gold); }
+.sidebar-item .icon { font-size:1.1rem; width:20px; text-align:center; }
+.sidebar-badge { margin-left:auto; background:var(--gold); color:var(--navy); font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:10px; }
+.main-content { background:var(--cream); padding:32px; overflow-y:auto; }
+.page-header { margin-bottom:32px; }
+.page-title { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:700; color:var(--navy); letter-spacing:-0.02em; }
+.page-sub { font-size:0.875rem; color:var(--slate); margin-top:4px; }
+
+.metric-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:28px; }
+.metric-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow-sm); position:relative; overflow:hidden; }
+.metric-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; }
+.metric-card.gold::after { background:var(--gold); }
+.metric-card.green::after { background:var(--green); }
+.metric-card.blue::after { background:var(--navy-light); }
+.metric-card.amber::after { background:#E67E22; }
+.metric-label { font-size:0.72rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--slate); margin-bottom:8px; }
+.metric-value { font-family:'Playfair Display',serif; font-size:1.7rem; font-weight:700; color:var(--navy); }
+.metric-sub { font-size:0.75rem; color:var(--slate); margin-top:4px; }
+
+.card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm); margin-bottom:20px; overflow:hidden; }
+.card-header { padding:18px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.card-title { font-size:0.95rem; font-weight:600; color:var(--navy); }
+.card-body { padding:20px 24px; }
+
+.badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:4px; font-size:0.72rem; font-weight:600; letter-spacing:0.04em; }
+.badge-green { background:var(--green-pale); color:var(--green); }
+.badge-amber { background:var(--amber-pale); color:var(--amber); }
+.badge-red { background:var(--red-pale); color:var(--red); }
+.badge-blue { background:#EBF3FC; color:var(--navy-light); }
+.badge-slate { background:#EEF2F7; color:var(--slate); }
+
+.timeline { padding:8px 0; }
+.timeline-item { display:flex; gap:16px; padding:12px 0; border-bottom:1px solid var(--border); }
+.timeline-item:last-child { border-bottom:none; }
+.timeline-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+.dot-green { background:var(--green); }
+.dot-gold { background:var(--gold); }
+.dot-slate { background:var(--slate-light); }
+.dot-blue { background:var(--navy-light); }
+.timeline-title { font-size:0.875rem; font-weight:500; color:var(--navy); }
+.timeline-meta { font-size:0.75rem; color:var(--slate); margin-top:2px; }
+
+.progress-bar { background:var(--border); border-radius:4px; height:6px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--navy-light),var(--gold)); border-radius:4px; }
+
+.data-table { width:100%; border-collapse:collapse; }
+.data-table th { padding:10px 14px; text-align:left; font-size:0.72rem; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:var(--slate); border-bottom:2px solid var(--border); }
+.data-table td { padding:12px 14px; font-size:0.875rem; color:var(--navy); border-bottom:1px solid var(--border); }
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tr:hover td { background:#F5F8FC; }
+
+.btn-sm { padding:7px 14px; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; }
+.btn-navy { background:var(--navy); color:var(--white); }
+.btn-navy:hover { background:var(--navy-mid); }
+.btn-gold { background:var(--gold); color:var(--navy); }
+.btn-gold:hover { background:var(--gold-light); }
+.btn-ghost { background:transparent; color:var(--navy); border:1px solid var(--border); }
+.btn-ghost:hover { border-color:var(--navy); }
+.btn-green { background:var(--green); color:var(--white); }
+.btn-green:hover { opacity:0.88; }
+
+.upload-zone { border:2px dashed var(--border); border-radius:var(--radius); padding:40px; text-align:center; cursor:pointer; transition:all 0.2s; background:#FAFBFD; }
+.upload-zone:hover { border-color:var(--gold); background:var(--gold-pale); }
+.upload-zone h4 { font-size:0.95rem; font-weight:600; color:var(--navy); margin-bottom:6px; }
+.upload-zone p { font-size:0.8rem; color:var(--slate); }
+
+.escrow-box { background:linear-gradient(135deg,var(--navy),var(--navy-mid)); border-radius:var(--radius); padding:24px; color:var(--white); margin-bottom:20px; }
+.escrow-title { font-size:0.72rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--slate-light); margin-bottom:8px; }
+.escrow-amount { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--gold); }
+.escrow-sub { font-size:0.8rem; color:var(--slate-light); margin-top:4px; }
+.escrow-breakdown { display:flex; gap:16px; margin-top:20px; flex-wrap:wrap; }
+.escrow-item { background:rgba(255,255,255,0.07); border-radius:6px; padding:10px 14px; flex:1; min-width:100px; }
+.escrow-item-label { font-size:0.68rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--slate-light); }
+.escrow-item-val { font-size:0.95rem; font-weight:600; color:var(--white); margin-top:3px; }
+
+.cctv-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.cctv-feed { background:#0A0E14; border-radius:8px; aspect-ratio:16/9; position:relative; overflow:hidden; cursor:pointer; }
+.cctv-placeholder { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg,#0D1B2A,#1A2F47); }
+.cctv-placeholder .icon { font-size:2rem; opacity:0.3; }
+.cctv-label { position:absolute; bottom:8px; left:10px; background:rgba(0,0,0,0.7); color:#fff; font-size:0.68rem; padding:3px 8px; border-radius:4px; font-family:'DM Mono',monospace; }
+.cctv-live { position:absolute; top:8px; right:10px; background:#E53935; color:#fff; font-size:0.65rem; padding:2px 7px; border-radius:3px; font-weight:700; letter-spacing:0.06em; }
+
+.ai-report { background:linear-gradient(135deg,#EBF3FC,#F0F7FF); border:1px solid #C8DFF5; border-radius:var(--radius); padding:18px; margin-top:16px; }
+.ai-tag { font-size:0.68rem; font-weight:700; letter-spacing:0.1em; color:var(--navy-light); text-transform:uppercase; margin-bottom:8px; }
+.ai-text { font-size:0.875rem; color:var(--navy); line-height:1.7; }
+
+.milestone-track { display:flex; flex-direction:column; gap:12px; }
+.milestone-item { display:flex; align-items:center; gap:16px; background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; }
+.milestone-name { font-size:0.9rem; font-weight:600; color:var(--navy); }
+.milestone-detail { font-size:0.775rem; color:var(--slate); margin-top:2px; }
+.milestone-amount { font-size:0.875rem; font-weight:600; color:var(--green); margin-left:auto; }
+
+.boq-item { display:grid; grid-template-columns:1fr 80px 100px 110px; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); font-size:0.85rem; align-items:center; }
+.boq-item:last-child { border-bottom:none; }
+.boq-header { color:var(--slate); font-weight:600; font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase; }
+.boq-total { font-weight:700; color:var(--navy); }
+
+.supplier-card { display:grid; grid-template-columns:48px 1fr auto; gap:14px; align-items:center; padding:16px; background:var(--white); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:10px; cursor:pointer; transition:all 0.2s; }
+.supplier-card:hover { border-color:var(--gold); box-shadow:var(--shadow-sm); transform:translateX(4px); }
+.supplier-avatar { width:48px; height:48px; border-radius:10px; background:linear-gradient(135deg,var(--navy),var(--navy-light)); display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
+.supplier-name { font-size:0.9rem; font-weight:600; color:var(--navy); }
+.supplier-loc { font-size:0.78rem; color:var(--slate); margin-top:2px; }
+.supplier-rating { color:var(--gold); font-size:0.8rem; }
+
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.tag { display:inline-block; padding:3px 8px; border-radius:4px; font-size:0.7rem; font-weight:600; letter-spacing:0.04em; background:var(--border); color:var(--slate); margin-right:4px; margin-bottom:4px; }
+.alert { padding:14px 18px; border-radius:var(--radius); margin-bottom:18px; display:flex; align-items:flex-start; gap:10px; font-size:0.875rem; }
+.alert-gold { background:var(--gold-pale); border:1px solid rgba(201,146,42,0.3); color:#7A5214; }
+.alert-green { background:var(--green-pale); border:1px solid rgba(26,122,74,0.3); color:#0D4D2B; }
+
+.doc-verify-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:12px; }
+.doc-verify-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.doc-icon { font-size:2rem; margin-right:12px; }
+.doc-name { font-size:0.9rem; font-weight:600; color:var(--navy); }
+.doc-meta { font-size:0.775rem; color:var(--slate); margin-top:2px; }
+.doc-actions { display:flex; gap:8px; flex-wrap:wrap; }
+
+footer { background:#060F1C; padding:48px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; }
+.footer-logo { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; color:var(--white); }
+.footer-logo span { color:var(--gold); }
+.footer-desc { font-size:0.83rem; color:var(--slate); margin-top:12px; line-height:1.7; max-width:280px; }
+.footer-col h4 { font-size:0.78rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); margin-bottom:14px; }
+.footer-col a { display:block; font-size:0.83rem; color:var(--slate); margin-bottom:8px; text-decoration:none; cursor:pointer; }
+.footer-col a:hover { color:var(--white); }
+.footer-bottom { background:#040C17; padding:16px 48px; text-align:center; font-size:0.78rem; color:var(--slate); border-top:1px solid rgba(255,255,255,0.04); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo" onclick="showView('landing')" style="cursor:pointer">Vis<span>tru</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('landing')">Platform</button>
+    <button class="nav-tab" onclick="showView('client')">Client</button>
+    <button class="nav-tab" onclick="showView('engineer')">Engineer</button>
+    <button class="nav-tab" onclick="showView('supplier')">Supplier</button>
+    <button class="nav-tab" onclick="showView('lawyer')">Legal</button>
+  </div>
+  <button class="nav-cta" onclick="showView('client')">Get Started</button>
+</nav>
+
+<!-- ══ LANDING ══ -->
+<div id="view-landing" class="view active">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Now in Beta — Ebonyi State Pilot</div>
+      <h1>Build with <em>confidence,</em><br>anywhere.</h1>
+      <p>Nigeria's first end-to-end remote construction supervision platform — connecting clients, engineers, suppliers, and legal professionals through a single trusted system with AI-powered site monitoring and escrow-protected payments.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="showView('client')">Start a Project</button>
+        <button class="btn-outline" onclick="scrollToHow()">How it Works ↓</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-number">₦0</div><div class="stat-label">Escrow Loss Record</div></div>
+    <div class="stat"><div class="stat-number">24/7</div><div class="stat-label">AI Site Monitoring</div></div>
+    <div class="stat"><div class="stat-number">100%</div><div class="stat-label">Verified Engineers</div></div>
+    <div class="stat"><div class="stat-number">2.5%</div><div class="stat-label">Escrow Fee Only</div></div>
+  </div>
+
+  <div class="section" id="how-section">
+    <div class="section-label">Process</div>
+    <div class="section-title">From land to completion,<br>fully supervised.</div>
+    <div class="section-sub">Every stage of your construction project is managed transparently through Vistru's verified pipeline.</div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-number">STEP 01</div><div class="step-icon">📄</div><h3>Land Verification</h3><p>Upload title documents. A licensed platform lawyer verifies ownership and confirms zero disputes before any project commences.</p></div>
+      <div class="step-card"><div class="step-number">STEP 02</div><div class="step-icon">📐</div><h3>Drawing Upload & BOQ</h3><p>Submit architectural and structural drawings. Verified civil engineers review drawings and submit competitive Bills of Quantity.</p></div>
+      <div class="step-card"><div class="step-number">STEP 03</div><div class="step-icon">⚖️</div><h3>Legal Agreement</h3><p>A platform lawyer drafts a binding contract between client and selected engineer. Arbitration services available at any point.</p></div>
+      <div class="step-card"><div class="step-number">STEP 04</div><div class="step-icon">📹</div><h3>AI Site Monitoring</h3><p>Vistru agents deploy CCTV and AI cameras on-site. Live feeds and AI-interpreted progress reports delivered to the client.</p></div>
+      <div class="step-card"><div class="step-number">STEP 05</div><div class="step-icon">🔒</div><h3>Escrow Payments</h3><p>All payments held in escrow and released only after the client confirms milestone or delivery completion.</p></div>
+      <div class="step-card"><div class="step-number">STEP 06</div><div class="step-icon">🏠</div><h3>Handover</h3><p>Final AI inspection report generated. Final payment released. Full project archive delivered to client.</p></div>
+    </div>
+  </div>
+
+  <div class="fees-section">
+    <div class="section-label">Transparent Pricing</div>
+    <div class="section-title" style="color:var(--white)">Platform fee structure.</div>
+    <div class="section-sub">All charges are percentage-based — you only pay when transactions occur.</div>
+    <table class="fee-table">
+      <thead><tr><th>Service</th><th>Charged To</th><th>Rate</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Escrow — Engineer Milestone Payment</td><td>Client</td><td><span class="fee-badge">2.5%</span></td><td>Per milestone release</td></tr>
+        <tr><td>Escrow — Supplier Material Payment</td><td>Client</td><td><span class="fee-badge">2.0%</span></td><td>Per delivery confirmation</td></tr>
+        <tr><td>Land Verification (Lawyer)</td><td>Client</td><td><span class="fee-badge">1.5%</span> of project value</td><td>Min. ₦50,000 floor</td></tr>
+        <tr><td>Contract Drafting (Lawyer)</td><td>Client</td><td><span class="fee-badge">1.0%</span> of contract value</td><td>Per agreement</td></tr>
+        <tr><td>Arbitration (Lawyer)</td><td>Filing party</td><td><span class="fee-badge">₦75,000</span> + <span class="fee-badge">0.5%</span></td><td>Of disputed amount</td></tr>
+        <tr><td>Engineer Profile Listing (Ad)</td><td>Engineer</td><td><span class="fee-badge">₦15,000/mo</span></td><td>Featured in project notifications</td></tr>
+        <tr><td>Supplier Storefront Listing (Ad)</td><td>Supplier</td><td><span class="fee-badge">₦10,000/mo</span></td><td>Visible to regional clients</td></tr>
+        <tr><td>CCTV & AI Deployment</td><td>Client</td><td><span class="fee-badge">₦120,000</span> setup + <span class="fee-badge">₦25,000/mo</span></td><td>Hardware by Vistru agents</td></tr>
+        <tr><td>Vistru Agent Site Visit</td><td>Client</td><td><span class="fee-badge">₦20,000/visit</span></td><td>Milestone verification</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="background:var(--navy);padding:96px 48px">
+    <div class="section-label">Portals</div>
+    <div class="section-title">Built for every stakeholder.</div>
+    <div class="section-sub">Each party has a dedicated dashboard designed around their workflow.</div>
+    <div class="roles-grid">
+      <div class="role-card" onclick="showView('client')"><div class="role-icon">👤</div><h3>Client</h3><p>Verify land, select engineers, monitor CCTV, approve escrow payments.</p><div class="role-link">Open Dashboard →</div></div>
+      <div class="role-card" onclick="showView('engineer')"><div class="role-icon">🏗️</div><h3>Civil Engineer</h3><p>Receive project notifications, review drawings, submit BOQs, track milestones.</p><div class="role-link">Open Dashboard →</div></div>
+      <div class="role-card" onclick="showView('supplier')"><div class="role-icon">🏪</div><h3>Material Supplier</h3><p>List inventory, receive orders, manage deliveries, collect escrow releases.</p><div class="role-link">Open Dashboard →</div></div>
+      <div class="role-card" onclick="showView('lawyer')"><div class="role-icon">⚖️</div><h3>Platform Lawyer</h3><p>Verify land titles, draft contracts, manage arbitration cases.</p><div class="role-link">Open Dashboard →</div></div>
+    </div>
+  </div>
+
+  <div style="background:var(--navy);padding:0 48px 80px">
+    <div style="background:rgba(201,146,42,0.08);border:1px solid rgba(201,146,42,0.25);border-radius:var(--radius-lg);padding:40px">
+      <div class="section-label">Suggested Additions</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--white);margin-bottom:24px;letter-spacing:-0.02em">Recommended features for full MVP</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:16px"><div style="font-size:1.2rem;margin-bottom:8px">📱</div><div style="color:var(--white);font-size:0.875rem;font-weight:600;margin-bottom:4px">Mobile PWA</div><div style="color:var(--slate-light);font-size:0.8rem;line-height:1.6">Many clients and engineers are mobile-first. A PWA or React Native app is critical for CCTV feed access in the field.</div></div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:16px"><div style="font-size:1.2rem;margin-bottom:8px">💬</div><div style="color:var(--white);font-size:0.875rem;font-weight:600;margin-bottom:4px">In-Platform Messaging</div><div style="color:var(--slate-light);font-size:0.8rem;line-height:1.6">Secure threaded messaging with logs archived as evidence for any future arbitration.</div></div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:16px"><div style="font-size:1.2rem;margin-bottom:8px">🔔</div><div style="color:var(--white);font-size:0.875rem;font-weight:600;margin-bottom:4px">SMS / WhatsApp Alerts</div><div style="color:var(--slate-light);font-size:0.8rem;line-height:1.6">Push milestone alerts, payment confirmations, and AI reports via SMS/WhatsApp for clients with limited internet.</div></div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:16px"><div style="font-size:1.2rem;margin-bottom:8px">🏦</div><div style="color:var(--white);font-size:0.875rem;font-weight:600;margin-bottom:4px">CBN-Licensed Escrow</div><div style="color:var(--slate-light);font-size:0.8rem;line-height:1.6">Partner with a licensed Nigerian escrow provider (Paystack, Flutterwave) or obtain CBN payment service licence.</div></div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:16px"><div style="font-size:1.2rem;margin-bottom:8px">⭐</div><div style="color:var(--white);font-size:0.875rem;font-weight:600;margin-bottom:4px">Engineer Ratings</div><div style="color:var(--slate-light);font-size:0.8rem;line-height:1.6">Post-project star ratings, verified COREN badges, and public track records to improve engineer selection.</div></div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:16px"><div style="font-size:1.2rem;margin-bottom:8px">📋</div><div style="color:var(--white);font-size:0.875rem;font-weight:600;margin-bottom:4px">Building Permit Tracker</div><div style="color:var(--slate-light);font-size:0.8rem;line-height:1.6">Track permit applications to state ministries of works. Lawyer role extended to assist with permit documentation.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div><div class="footer-logo">Vis<span>tru</span></div><div class="footer-desc">Nigeria's trusted remote construction supervision platform. Securing projects from ground-breaking to handover.</div></div>
+    <div class="footer-col"><h4>Platform</h4><a>How it Works</a><a>Pricing</a><a>CCTV & AI</a><a>Escrow System</a></div>
+    <div class="footer-col"><h4>Portals</h4><a onclick="showView('client')">Client</a><a onclick="showView('engineer')">Engineer</a><a onclick="showView('supplier')">Supplier</a><a onclick="showView('lawyer')">Legal</a></div>
+    <div class="footer-col"><h4>Company</h4><a>About Vistru</a><a>Contact</a><a>Privacy Policy</a><a>Terms of Service</a></div>
+  </footer>
+  <div class="footer-bottom">© 2025 Vistru Technologies Ltd · All rights reserved · RC: 0000000 (Nigeria)</div>
+</div>
+
+<!-- ══ CLIENT DASHBOARD ══ -->
+<div id="view-client" class="view">
+  <div class="dashboard">
+    <div class="sidebar">
+      <div class="sidebar-header"><div class="sidebar-user"><div class="avatar">AO</div><div><div class="user-name">Adaeze Okonkwo</div><div class="user-role">Property Client</div></div></div></div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Project</div>
+        <div class="sidebar-item active" onclick="clientTab('overview',this)"><span class="icon">🏠</span> Overview</div>
+        <div class="sidebar-item" onclick="clientTab('land',this)"><span class="icon">📄</span> Land Verification</div>
+        <div class="sidebar-item" onclick="clientTab('drawings',this)"><span class="icon">📐</span> Drawings & BOQ</div>
+        <div class="sidebar-item" onclick="clientTab('cctv',this)"><span class="icon">📹</span> CCTV & AI Reports <span class="sidebar-badge">3</span></div>
+        <div class="nav-section-label">Finance</div>
+        <div class="sidebar-item" onclick="clientTab('escrow',this)"><span class="icon">🔒</span> Escrow & Payments</div>
+        <div class="sidebar-item" onclick="clientTab('suppliers',this)"><span class="icon">🏪</span> Suppliers</div>
+        <div class="nav-section-label">Legal</div>
+        <div class="sidebar-item" onclick="clientTab('contract',this)"><span class="icon">⚖️</span> Contract</div>
+        <div class="sidebar-item" onclick="clientTab('arbitration',this)"><span class="icon">🔔</span> Arbitration</div>
+      </div>
+    </div>
+    <div class="main-content">
+      <!-- OVERVIEW -->
+      <div id="c-overview">
+        <div class="page-header"><div class="page-title">Project Overview</div><div class="page-sub">4-bedroom detached duplex · Plot 18, GRA Extension, Abakaliki</div></div>
+        <div class="alert alert-gold">⚠️ <strong>Action Required:</strong> Milestone 4 (Roofing) has been completed. Review AI report and release escrow payment.</div>
+        <div class="metric-row">
+          <div class="metric-card gold"><div class="metric-label">Project Value</div><div class="metric-value">₦48.5M</div><div class="metric-sub">Contract with Engr. Eze</div></div>
+          <div class="metric-card green"><div class="metric-label">In Escrow</div><div class="metric-value">₦12.2M</div><div class="metric-sub">Engineer + Supplier held</div></div>
+          <div class="metric-card blue"><div class="metric-label">Progress</div><div class="metric-value">62%</div><div class="metric-sub">Milestone 4 of 7</div></div>
+          <div class="metric-card amber"><div class="metric-label">Fees Paid</div><div class="metric-value">₦1.21M</div><div class="metric-sub">Escrow + legal charges</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Milestone Tracker</div><span class="badge badge-amber">4 / 7 Done</span></div>
+            <div class="card-body">
+              <div class="milestone-track">
+                <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M1 — Foundation</div><div class="milestone-detail">Released 14 Jan 2025</div></div><div class="milestone-amount">₦6.5M</div></div>
+                <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M2 — Ground Floor Slab</div><div class="milestone-detail">Released 22 Feb 2025</div></div><div class="milestone-amount">₦8.2M</div></div>
+                <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M3 — Blockwork & Lintel</div><div class="milestone-detail">Released 10 Apr 2025</div></div><div class="milestone-amount">₦7.8M</div></div>
+                <div class="milestone-item" style="border:1px solid var(--gold);background:var(--gold-pale);border-radius:8px;padding:12px">
+                  <span>🔔</span>
+                  <div style="flex:1"><div class="milestone-name">M4 — Roofing <em style="font-weight:400;font-size:0.8rem">(Awaiting Approval)</em></div><div class="milestone-detail">AI report received · Please verify and release</div></div>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="milestone-amount">₦9.1M</div><button class="btn-sm btn-green" onclick="clientReleaseMilestone('M4 — Roofing','9,100,000','227,500')">Release</button></div>
+                </div>
+                <div class="milestone-item" style="opacity:0.5"><span>⏳</span><div style="flex:1"><div class="milestone-name">M5 — Plastering</div><div class="milestone-detail">Not yet started</div></div><div class="milestone-amount">₦6.2M</div></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Completion Progress</div></div>
+              <div class="card-body">
+                <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:0.8rem;font-weight:500">Overall</span><span style="font-size:0.8rem;font-weight:700">62%</span></div><div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div></div>
+                <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:0.8rem;font-weight:500">Structural Work</span><span style="font-size:0.8rem;font-weight:700">85%</span></div><div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div></div>
+                <div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:0.8rem;font-weight:500">Budget Utilised</span><span style="font-size:0.8rem;font-weight:700">67%</span></div><div class="progress-bar"><div class="progress-fill" style="width:67%"></div></div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Recent Activity</div></div>
+              <div class="card-body">
+                <div class="timeline">
+                  <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">AI Roofing Report generated</div><div class="timeline-meta">Today, 09:14 AM · Camera 2</div></div></div>
+                  <div class="timeline-item"><div class="timeline-dot dot-gold"></div><div><div class="timeline-title">Supplier Bamike Steel: Delivery confirmed</div><div class="timeline-meta">Yesterday, 3:40 PM</div></div></div>
+                  <div class="timeline-item"><div class="timeline-dot dot-blue"></div><div><div class="timeline-title">Engr. Eze filed Milestone 4 completion</div><div class="timeline-meta">2 days ago</div></div></div>
+                  <div class="timeline-item"><div class="timeline-dot dot-slate"></div><div><div class="timeline-title">Contract updated — Schedule amendment</div><div class="timeline-meta">3 days ago · Reviewed by Barr. Obiechina</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- LAND -->
+      <div id="c-land" style="display:none">
+        <div class="page-header"><div class="page-title">Land Verification</div><div class="page-sub">Submit ownership documents for legal review by a platform lawyer.</div></div>
+        <div class="alert alert-green">✅ <strong>Verified:</strong> Plot 18, GRA Extension, Abakaliki confirmed dispute-free by Barr. Obiechina · 8 Dec 2024.</div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Upload Documents</div></div>
+            <div class="card-body">
+              <div class="upload-zone" onclick="triggerUpload('doc-upload-input')"><div style="font-size:2.4rem;margin-bottom:12px">📂</div><h4>Drag & drop or click to upload</h4><p>Certificate of Occupancy, Survey Plan, Deed of Assignment</p></div>
+              <input type="file" id="doc-upload-input" multiple accept=".pdf,.jpg,.png" style="display:none" onchange="handleUpload('doc-upload-input','doc-upload-list')">
+              <div id="doc-upload-list" style="margin-top:16px">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:10px"><span>📋</span><span style="font-size:0.875rem">Certificate_of_Occupancy.pdf</span></div><span class="badge badge-green">Verified</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0"><div style="display:flex;align-items:center;gap:10px"><span>🗺️</span><span style="font-size:0.875rem">Survey_Plan_Plot18.pdf</span></div><span class="badge badge-green">Verified</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Lawyer Review</div></div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:16px;background:#F5F8FC;border-radius:8px"><div class="avatar" style="background:linear-gradient(135deg,#1A4272,#0B1F3A)">BC</div><div><div style="font-weight:600;font-size:0.9rem">Barr. Chukwuemeka Obiechina</div><div style="font-size:0.775rem;color:var(--slate)">Platform Certified · LLB, BL · Enugu Bar</div></div></div>
+              <div class="timeline">
+                <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">All documents received and reviewed</div><div class="timeline-meta">Dec 8, 2024</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">Land registry confirmed at Ebonyi Ministry of Lands</div><div class="timeline-meta">Dec 9, 2024</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">No encumbrance or litigation found. Cleared.</div><div class="timeline-meta">Dec 10, 2024</div></div></div>
+              </div>
+              <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-size:0.8rem;color:var(--slate)">Lawyer fee:</span><span style="font-weight:700">₦727,500 <span style="font-weight:400;color:var(--slate)">(1.5%)</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- DRAWINGS -->
+      <div id="c-drawings" style="display:none">
+        <div class="page-header"><div class="page-title">Drawings & BOQ Bids</div><div class="page-sub">Review BOQs submitted by interested engineers and select the most economical.</div></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Uploaded Drawings</div><span class="badge badge-green">2 Files</span></div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:1.4rem">📐</span><div><div style="font-size:0.875rem;font-weight:500">Architectural Drawings</div><div style="font-size:0.75rem;color:var(--slate)">4-bed duplex · Rev.2 · 14 pages</div></div></div><button class="btn-sm btn-ghost" onclick="clientViewDrawing('Architectural Drawings — Rev.2')">View</button></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:1.4rem">📊</span><div><div style="font-size:0.875rem;font-weight:500">Structural Drawings</div><div style="font-size:0.75rem;color:var(--slate)">Foundation + Column schedule · 8 pages</div></div></div><button class="btn-sm btn-ghost" onclick="clientViewDrawing('Structural Drawings — Foundation & Column Schedule')">View</button></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">BOQ Bids Received</div><span class="badge badge-blue">3 Bids</span></div>
+            <div class="card-body">
+              <table class="data-table">
+                <thead><tr><th>Engineer</th><th>Total BOQ</th><th>Duration</th><th></th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Engr. Chidi Eze</strong><br><span style="font-size:0.75rem;color:var(--slate)">COREN Lic.</span></td><td style="color:var(--green);font-weight:700">₦48.5M</td><td>18 mo</td><td><span class="badge badge-green">✓ Awarded</span></td></tr>
+                  <tr><td><strong>Engr. Ngozi Mba</strong><br><span style="font-size:0.75rem;color:var(--slate)">M.Eng</span></td><td>₦52.1M</td><td>16 mo</td><td><button class="btn-sm btn-ghost" onclick="alert('Contract already awarded')">View</button></td></tr>
+                  <tr><td><strong>Engr. Kalu Onah</strong><br><span style="font-size:0.75rem;color:var(--slate)">NSE</span></td><td>₦55.0M</td><td>20 mo</td><td><button class="btn-sm btn-ghost" onclick="alert('Contract already awarded')">View</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- CCTV -->
+      <div id="c-cctv" style="display:none">
+        <div class="page-header"><div class="page-title">CCTV & AI Monitoring</div><div class="page-sub">Live feeds and AI progress interpretations from your site.</div></div>
+        <div class="alert alert-gold">🤖 <strong>New AI Report:</strong> Roofing completion analysis generated 2 hours ago. Review and release payment below.</div>
+        <div class="cctv-grid" style="margin-bottom:20px">
+          <div class="cctv-feed" onclick="alert('Full-screen: Camera 1 — Front Elevation')"><div class="cctv-placeholder"><div class="icon">📹</div><div style="font-size:0.68rem;color:#4A6B8A;margin-top:8px">LIVE</div></div><div class="cctv-label">CAM 01 — Front Elevation</div><div class="cctv-live">● LIVE</div></div>
+          <div class="cctv-feed" onclick="alert('Full-screen: Camera 2 — Roof Level')"><div class="cctv-placeholder"><div class="icon">📹</div><div style="font-size:0.68rem;color:#4A6B8A;margin-top:8px">LIVE</div></div><div class="cctv-label">CAM 02 — Roof Level</div><div class="cctv-live">● LIVE</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">🤖 AI Report — Roofing Milestone</div><span style="font-size:0.78rem;color:var(--slate)">Today 09:14 AM</span></div>
+          <div class="card-body">
+            <div class="ai-report">
+              <div class="ai-tag">🔬 AI Analysis · Vistru Vision v2.1</div>
+              <div class="ai-text"><strong>Summary:</strong> Camera feeds confirm roofing works on the 4-bed duplex at Plot 18 are substantially complete. Roof trusses fully installed and covered. No structural defects detected.<br><br><strong>Observations:</strong> (1) All ridge capping joints sealed. (2) Gutter installation ~80% complete (northern elevation). (3) Scaffolding removal in progress (~1 day). (4) Worker count averaged 9 on site between 09:00–16:00.<br><br><strong>Recommendation:</strong> Milestone 4 (Roofing) confirmed complete. Client may release escrow payment.</div>
+            </div>
+            <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn-sm btn-green" onclick="clientReleaseMilestone('M4 — Roofing','9,100,000','227,500')">✅ Confirm & Release ₦9.1M</button>
+              <button class="btn-sm btn-ghost" onclick="clientRaiseDispute()">⚠️ Raise Dispute</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ESCROW -->
+      <div id="c-escrow" style="display:none">
+        <div class="page-header"><div class="page-title">Escrow & Payments</div><div class="page-sub">All funds held in escrow — released only on your confirmation.</div></div>
+        <div class="escrow-box">
+          <div class="escrow-title">Total Funds in Escrow</div>
+          <div class="escrow-amount">₦12,200,000</div>
+          <div class="escrow-sub">Held securely · 2.5% release fee applies per transaction</div>
+          <div class="escrow-breakdown">
+            <div class="escrow-item"><div class="escrow-item-label">Engineer (M4)</div><div class="escrow-item-val">₦9,100,000</div></div>
+            <div class="escrow-item"><div class="escrow-item-label">Supplier (Cement)</div><div class="escrow-item-val">₦2,100,000</div></div>
+            <div class="escrow-item"><div class="escrow-item-label">Platform Reserve</div><div class="escrow-item-val">₦1,000,000</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Payment History</div></div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Platform Fee</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>10 Apr 2025</td><td>M3 — Blockwork</td><td>₦7,800,000</td><td>₦195,000 (2.5%)</td><td><span class="badge badge-green">Released</span></td></tr>
+                <tr><td>22 Feb 2025</td><td>M2 — GF Slab</td><td>₦8,200,000</td><td>₦205,000 (2.5%)</td><td><span class="badge badge-green">Released</span></td></tr>
+                <tr><td>14 Jan 2025</td><td>M1 — Foundation</td><td>₦6,500,000</td><td>₦162,500 (2.5%)</td><td><span class="badge badge-green">Released</span></td></tr>
+                <tr><td>10 Dec 2024</td><td>Land Verification</td><td>₦727,500</td><td>N/A</td><td><span class="badge badge-green">Paid</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- SUPPLIERS -->
+      <div id="c-suppliers" style="display:none">
+        <div class="page-header"><div class="page-title">Material Suppliers</div><div class="page-sub">Browse verified suppliers. Payment held in escrow until delivery confirmed (2.0% fee).</div></div>
+        <div style="margin-bottom:16px"><span class="tag supplier-filter-btn active-tag" onclick="clientFilterSuppliers('all',this)" style="cursor:pointer">All</span><span class="tag supplier-filter-btn" onclick="clientFilterSuppliers('iron',this)" style="cursor:pointer">Iron Rods</span><span class="tag supplier-filter-btn" onclick="clientFilterSuppliers('cement',this)" style="cursor:pointer">Cement</span><span class="tag supplier-filter-btn" onclick="clientFilterSuppliers('roofing',this)" style="cursor:pointer">Roofing</span><span class="tag supplier-filter-btn" onclick="clientFilterSuppliers('aggregate',this)" style="cursor:pointer">Sand & Granite</span></div>
+        <div class="supplier-card" data-cat="iron" onclick="clientOrderSupplier('Bamike Steel & Hardware Ltd')"><div class="supplier-avatar">🏗️</div><div><div class="supplier-name">Bamike Steel & Hardware Ltd</div><div class="supplier-loc">📍 Mile 50 Market, Abakaliki · <span class="supplier-rating">★★★★★</span> 4.9</div><div style="margin-top:4px;font-size:0.78rem;color:var(--slate)">Iron rods, BRC mesh, binding wire · Verified · 48hr delivery</div></div><button class="btn-sm btn-navy" onclick="event.stopPropagation();clientOrderSupplier('Bamike Steel & Hardware Ltd')">Order</button></div>
+        <div class="supplier-card" data-cat="cement" onclick="clientOrderSupplier('EboCem Distributors')"><div class="supplier-avatar">🧱</div><div><div class="supplier-name">EboCem Distributors</div><div class="supplier-loc">📍 Kpirikpiri Road, Abakaliki · <span class="supplier-rating">★★★★☆</span> 4.6</div><div style="margin-top:4px;font-size:0.78rem;color:var(--slate)">Dangote, Unicem, bulk discounts available</div></div><button class="btn-sm btn-navy" onclick="event.stopPropagation();clientOrderSupplier('EboCem Distributors')">Order</button></div>
+        <div class="supplier-card" data-cat="aggregate" onclick="clientOrderSupplier('Crossriver Aggregates')"><div class="supplier-avatar">🪨</div><div><div class="supplier-name">Crossriver Aggregates</div><div class="supplier-loc">📍 Ogoja Road, Abakaliki · <span class="supplier-rating">★★★★☆</span> 4.4</div><div style="margin-top:4px;font-size:0.78rem;color:var(--slate)">Sharp sand, granite ¾ & ½ inch, laterite</div></div><button class="btn-sm btn-navy" onclick="event.stopPropagation();clientOrderSupplier('Crossriver Aggregates')">Order</button></div>
+      </div>
+      <!-- CONTRACT -->
+      <div id="c-contract" style="display:none">
+        <div class="page-header"><div class="page-title">Contract</div><div class="page-sub">Binding agreement drafted and executed by platform lawyer.</div></div>
+        <div class="alert alert-green">✅ <strong>Contract Active:</strong> Agreement executed between Adaeze Okonkwo and Engr. Chidi Eze on 12 Dec 2024. Drafted by Barr. Obiechina.</div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">📜 Contract Summary</div><button class="btn-sm btn-gold" onclick="showToast('📄 Contract PDF downloading…','info')">Download PDF</button></div>
+            <div class="card-body">
+              <div class="timeline">
+                <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">Parties: Adaeze Okonkwo (Client) ↔ Engr. Chidi Eze</div><div class="timeline-meta">Executed 12 Dec 2024</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">Contract Value: ₦48,500,000 — 7 Milestones</div><div class="timeline-meta">Duration: 18 months</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">Defect Liability Period: 12 months post-handover</div><div class="timeline-meta">As per NBC/BS 8110 compliance</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot dot-blue"></div><div><div class="timeline-title">Lawyer: Barr. Chukwuemeka Obiechina</div><div class="timeline-meta">Drafting fee: ₦485,000 (1.0%)</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Dispute & Arbitration</div></div>
+            <div class="card-body">
+              <p style="font-size:0.875rem;color:var(--slate);line-height:1.7;margin-bottom:16px">If a dispute arises, either party may file for formal arbitration through the platform lawyer. Filing fee: ₦75,000 + 0.5% of disputed amount.</p>
+              <button class="btn-sm btn-navy" onclick="clientFileArbitration()" style="width:100%">⚖️ File Arbitration Request</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ARBITRATION -->
+      <div id="c-arbitration" style="display:none">
+        <div class="page-header"><div class="page-title">Arbitration</div><div class="page-sub">File and track dispute resolution cases.</div></div>
+        <div class="alert alert-gold">ℹ️ No active arbitration cases on this project. If a dispute arises, click "File Arbitration" below.</div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">⚖️ File a New Arbitration Case</div></div>
+          <div class="card-body">
+            <p style="font-size:0.875rem;color:var(--slate);line-height:1.7;margin-bottom:16px">Arbitration is handled by the platform lawyer. Provide details of your dispute below. Filing fee of ₦75,000 + 0.5% of disputed amount will be charged.</p>
+            <button class="btn-sm btn-navy" onclick="clientFileArbitration()">⚖️ File Arbitration Request</button>
+          </div>
+        </div>
+      </div>
+
+<!-- ══ ENGINEER DASHBOARD ══ -->
+<div id="view-engineer" class="view">
+  <div class="dashboard">
+    <div class="sidebar">
+      <div class="sidebar-header"><div class="sidebar-user"><div class="avatar" style="background:linear-gradient(135deg,#1A7A4A,#0B3D22)">CE</div><div><div class="user-name">Engr. Chidi Eze</div><div class="user-role">Civil Engineer</div></div></div></div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Work</div>
+        <div class="sidebar-item active" onclick="engineerTab('projects',this)"><span class="icon">📋</span> My Projects</div>
+        <div class="sidebar-item" onclick="engineerTab('opportunities',this)"><span class="icon">🔔</span> Opportunities <span class="sidebar-badge">2</span></div>
+        <div class="sidebar-item" onclick="engineerTab('boq',this)"><span class="icon">📝</span> Submit BOQ</div>
+        <div class="sidebar-item" onclick="engineerTab('milestones',this)"><span class="icon">🏁</span> Milestones</div>
+        <div class="nav-section-label">Finance</div>
+        <div class="sidebar-item" onclick="engineerTab('earnings',this)"><span class="icon">💰</span> Earnings</div>
+        <div class="nav-section-label">Profile</div>
+        <div class="sidebar-item" onclick="engineerTab('credentials',this)"><span class="icon">🪪</span> Credentials</div>
+        <div class="sidebar-item" onclick="engineerTab('arbitration',this)"><span class="icon">⚖️</span> Arbitration</div>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="page-header"><div class="page-title">Engineer Dashboard</div><div class="page-sub">COREN Licensed · 7 yrs experience · Ebonyi State</div></div>
+      <!-- PROJECTS -->
+      <div id="e-projects">
+      <div class="metric-row">
+        <div class="metric-card blue"><div class="metric-label">Active Projects</div><div class="metric-value">2</div><div class="metric-sub">1 pending BOQ</div></div>
+        <div class="metric-card green"><div class="metric-label">Total Earned</div><div class="metric-value">₦22.5M</div><div class="metric-sub">All time</div></div>
+        <div class="metric-card gold"><div class="metric-label">Awaiting Escrow</div><div class="metric-value">₦9.1M</div><div class="metric-sub">Milestone 4 pending client</div></div>
+        <div class="metric-card amber"><div class="metric-label">BOQ Win Rate</div><div class="metric-value">68%</div><div class="metric-sub">Last 12 months</div></div>
+      </div>
+
+      <div class="card" style="border-left:4px solid var(--gold)">
+        <div class="card-header"><div class="card-title">🔔 New Project Opportunity</div><span class="badge badge-amber">2 New</span></div>
+        <div class="card-body">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div>
+              <div style="font-size:1rem;font-weight:600;margin-bottom:6px">3-Bedroom Bungalow · Ezza South LGA</div>
+              <div style="font-size:0.875rem;color:var(--slate);margin-bottom:10px">Land verified ✅ · Est. value ₦18–25M</div>
+              <span class="tag">Structural: 6 pages</span><span class="tag">Arch: 10 pages</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn-sm btn-gold" onclick="engineerViewDrawings('3-Bed Bungalow, Ezza South')">View Drawings</button>
+              <button class="btn-sm btn-navy" onclick="engineerSubmitBOQ('3-Bed Bungalow, Ezza South')">Submit BOQ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">BOQ — Plot 18 Duplex (Awarded)</div><button class="btn-sm btn-ghost" onclick="engineerDownloadBOQ()">Download</button></div>
+          <div class="card-body">
+            <div class="boq-item boq-header"><div>Item</div><div>Unit</div><div>Rate (₦)</div><div>Amount (₦)</div></div>
+            <div class="boq-item"><div>Excavation & foundation</div><div>m³</div><div>85,000</div><div class="boq-total">6,500,000</div></div>
+            <div class="boq-item"><div>Ground floor slab</div><div>m²</div><div>22,000</div><div class="boq-total">8,200,000</div></div>
+            <div class="boq-item"><div>Blockwork & lintels</div><div>m²</div><div>18,500</div><div class="boq-total">7,800,000</div></div>
+            <div class="boq-item"><div>Roofing & cladding</div><div>m²</div><div>24,000</div><div class="boq-total">9,100,000</div></div>
+            <div class="boq-item"><div>Plastering</div><div>m²</div><div>8,500</div><div class="boq-total">6,200,000</div></div>
+            <div class="boq-item" style="font-weight:700;border-top:2px solid var(--navy)"><div>TOTAL</div><div></div><div></div><div class="boq-total">₦48,500,000</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Milestone Payment Status</div></div>
+          <div class="card-body">
+            <div class="milestone-track">
+              <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M1 — Foundation</div><div class="milestone-detail">Paid 14 Jan 2025</div></div><div class="milestone-amount">₦6.5M</div></div>
+              <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M2 — GF Slab</div><div class="milestone-detail">Paid 22 Feb 2025</div></div><div class="milestone-amount">₦8.2M</div></div>
+              <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M3 — Blockwork</div><div class="milestone-detail">Paid 10 Apr 2025</div></div><div class="milestone-amount">₦7.8M</div></div>
+              <div class="milestone-item" style="border:1px solid var(--gold);background:var(--gold-pale);border-radius:8px;padding:12px"><span>⏳</span><div style="flex:1"><div class="milestone-name">M4 — Roofing</div><div class="milestone-detail">Awaiting client release</div></div><div class="milestone-amount" style="color:var(--amber)">₦9.1M</div></div>
+            </div>
+            <div style="margin-top:16px">
+              <button class="btn-sm btn-navy" onclick="engineerFileMilestone('Milestone 4 — Roofing')">🏁 File M4 Completed</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div><!-- end e-projects -->
+
+    <!-- OPPORTUNITIES -->
+    <div id="e-opportunities" style="display:none">
+      <div class="page-header"><div class="page-title">Project Opportunities</div><div class="page-sub">Verified projects seeking engineer BOQs. Awarded projects charge 2% platform fee.</div></div>
+      <div class="card" style="border-left:4px solid var(--gold);margin-bottom:16px">
+        <div class="card-header"><div class="card-title">🏠 3-Bedroom Bungalow · Ezza South LGA</div><span class="badge badge-amber">New</span></div>
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+            <div><div style="font-size:0.875rem;color:var(--slate);margin-bottom:8px">Land verified ✅ · Est. ₦18–25M · 3 BOQs submitted</div><span class="tag">Structural: 6 pages</span><span class="tag">Arch: 10 pages</span></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn-sm btn-gold" onclick="engineerViewDrawings('3-Bed Bungalow, Ezza South')">View Drawings</button>
+              <button class="btn-sm btn-navy" onclick="engineerSubmitBOQ('3-Bed Bungalow, Ezza South')">Submit BOQ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--navy-light)">
+        <div class="card-header"><div class="card-title">🏢 Office Block · Abakaliki Municipal</div><span class="badge badge-blue">New</span></div>
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+            <div><div style="font-size:0.875rem;color:var(--slate);margin-bottom:8px">Land verified ✅ · Est. ₦45–60M · 1 BOQ submitted</div><span class="tag">Structural: 18 pages</span><span class="tag">Arch: 22 pages</span><span class="tag">MEP included</span></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn-sm btn-gold" onclick="engineerViewDrawings('Office Block, Abakaliki')">View Drawings</button>
+              <button class="btn-sm btn-navy" onclick="engineerSubmitBOQ('Office Block, Abakaliki')">Submit BOQ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBMIT BOQ -->
+    <div id="e-boq" style="display:none">
+      <div class="page-header"><div class="page-title">Submit BOQ</div><div class="page-sub">Select a project and upload your Bill of Quantities. 2% fee applies if awarded.</div></div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📝 New BOQ Submission</div></div>
+        <div class="card-body">
+          <form data-success-msg="BOQ submitted. Client will be notified.">
+            <div style="margin-bottom:14px"><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:6px">Select Project</label><select style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:0.875rem"><option>3-Bedroom Bungalow · Ezza South LGA</option><option>Office Block · Abakaliki Municipal</option></select></div>
+            <div style="margin-bottom:14px"><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:6px">Total BOQ Value (₦)</label><input type="number" placeholder="e.g. 22000000" style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:0.875rem"></div>
+            <div style="margin-bottom:14px"><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:6px">Estimated Duration (months)</label><input type="number" placeholder="e.g. 14" style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:0.875rem"></div>
+            <div style="margin-bottom:18px"><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:6px">Upload BOQ Document (PDF)</label>
+              <div class="upload-zone" onclick="triggerUpload('boq-file-input')"><div style="font-size:2rem;margin-bottom:8px">📄</div><h4>Click to upload BOQ PDF</h4><p>Max 10MB · PDF only</p></div>
+              <input type="file" id="boq-file-input" accept=".pdf" style="display:none" onchange="handleUpload('boq-file-input','boq-file-list')">
+              <div id="boq-file-list"></div>
+            </div>
+            <button type="submit" class="btn-sm btn-navy" style="padding:10px 24px">Submit BOQ →</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- MILESTONES -->
+    <div id="e-milestones" style="display:none">
+      <div class="page-header"><div class="page-title">Milestones</div><div class="page-sub">File milestone completions. Client confirms and releases escrow payment.</div></div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Plot 18 Duplex — Milestone Status</div><span class="badge badge-amber">M4 Awaiting Client</span></div>
+        <div class="card-body">
+          <div class="milestone-track">
+            <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M1 — Foundation</div><div class="milestone-detail">Paid 14 Jan 2025</div></div><div class="milestone-amount">₦6.5M</div></div>
+            <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M2 — GF Slab</div><div class="milestone-detail">Paid 22 Feb 2025</div></div><div class="milestone-amount">₦8.2M</div></div>
+            <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M3 — Blockwork</div><div class="milestone-detail">Paid 10 Apr 2025</div></div><div class="milestone-amount">₦7.8M</div></div>
+            <div class="milestone-item" style="border:1px solid var(--gold);background:var(--gold-pale);border-radius:8px;padding:12px"><span>⏳</span><div style="flex:1"><div class="milestone-name">M4 — Roofing</div><div class="milestone-detail">Filed — Awaiting client release</div></div><div class="milestone-amount" style="color:var(--amber)">₦9.1M</div></div>
+            <div class="milestone-item" style="opacity:0.5"><span>🔲</span><div style="flex:1"><div class="milestone-name">M5 — Plastering</div><div class="milestone-detail">Not yet started</div></div><div class="milestone-amount">₦6.2M</div></div>
+          </div>
+          <div style="margin-top:16px">
+            <button class="btn-sm btn-navy" onclick="engineerFileMilestone('Milestone 5 — Plastering')">🏁 File Next Milestone</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EARNINGS -->
+    <div id="e-earnings" style="display:none">
+      <div class="page-header"><div class="page-title">Earnings</div><div class="page-sub">All escrow releases credited to your account.</div></div>
+      <div class="metric-row">
+        <div class="metric-card gold"><div class="metric-label">Total Earned</div><div class="metric-value">₦22.5M</div><div class="metric-sub">All projects</div></div>
+        <div class="metric-card green"><div class="metric-label">This Month</div><div class="metric-value">₦0</div><div class="metric-sub">May 2025</div></div>
+        <div class="metric-card amber"><div class="metric-label">Pending Escrow</div><div class="metric-value">₦9.1M</div><div class="metric-sub">Awaiting client approval</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Payment History</div></div>
+        <div class="card-body">
+          <table class="data-table">
+            <thead><tr><th>Date</th><th>Project</th><th>Milestone</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>10 Apr 2025</td><td>Plot 18 Duplex</td><td>M3 — Blockwork</td><td>₦7,800,000</td><td><span class="badge badge-green">Received</span></td></tr>
+              <tr><td>22 Feb 2025</td><td>Plot 18 Duplex</td><td>M2 — GF Slab</td><td>₦8,200,000</td><td><span class="badge badge-green">Received</span></td></tr>
+              <tr><td>14 Jan 2025</td><td>Plot 18 Duplex</td><td>M1 — Foundation</td><td>₦6,500,000</td><td><span class="badge badge-green">Received</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREDENTIALS -->
+    <div id="e-credentials" style="display:none">
+      <div class="page-header"><div class="page-title">Credentials</div><div class="page-sub">Your verified professional profile on Vistru.</div></div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">🪪 Professional Profile</div><button class="btn-sm btn-gold" onclick="showToast('Profile update form opening…','info')">Edit Profile</button></div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px"><div class="avatar" style="width:64px;height:64px;font-size:1.4rem">CE</div><div><div style="font-size:1.1rem;font-weight:700">Engr. Chidi Eze</div><div style="color:var(--slate);font-size:0.875rem">COREN Registered · 7 yrs · B.Eng Civil Engineering</div></div></div>
+          <div class="timeline">
+            <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">COREN Registration: CR/2018/4521</div><div class="timeline-meta">Verified by Vistru · Active</div></div></div>
+            <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">NSE Member: NSE/2017/EBN/001</div><div class="timeline-meta">Verified</div></div></div>
+            <div class="timeline-item"><div class="timeline-dot dot-blue"></div><div><div class="timeline-title">Featured Listing: Active until June 2025</div><div class="timeline-meta">₦15,000/month · Priority in project notifications</div></div></div>
+          </div>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <button class="btn-sm btn-navy" onclick="showToast('📢 Redirecting to featured listing subscription…','info')">📢 Manage Ad Listing (₦15,000/mo)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARBITRATION (engineer) -->
+    <div id="e-arbitration" style="display:none">
+      <div class="page-header"><div class="page-title">Arbitration</div><div class="page-sub">File a dispute with the platform lawyer. Fee: ₦75,000 + 0.5% of disputed amount.</div></div>
+      <div class="alert alert-gold">ℹ️ No active arbitration cases. Use the button below if you need to file a dispute.</div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">⚖️ File Arbitration</div></div>
+        <div class="card-body">
+          <p style="font-size:0.875rem;color:var(--slate);line-height:1.7;margin-bottom:16px">Filing initiates a formal arbitration process managed by the platform lawyer. Both parties will be notified. A filing fee of ₦75,000 + 0.5% of the disputed sum applies.</p>
+          <button class="btn-sm btn-navy" onclick="engineerFileArbitration()">⚖️ File Arbitration Request</button>
+        </div>
+      </div>
+    </div>
+
+<!-- ══ SUPPLIER DASHBOARD ══ -->
+<div id="view-supplier" class="view">
+  <div class="dashboard">
+    <div class="sidebar">
+      <div class="sidebar-header"><div class="sidebar-user"><div class="avatar" style="background:linear-gradient(135deg,#7B341E,#3D1A0F)">BS</div><div><div class="user-name">Bamike Steel Ltd</div><div class="user-role">Material Supplier</div></div></div></div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Store</div>
+        <div class="sidebar-item active" onclick="supplierTab('storefront',this)"><span class="icon">🏪</span> My Storefront</div>
+        <div class="sidebar-item" onclick="supplierTab('orders',this)"><span class="icon">📦</span> Orders <span class="sidebar-badge">1</span></div>
+        <div class="sidebar-item" onclick="supplierTab('deliveries',this)"><span class="icon">🚚</span> Deliveries</div>
+        <div class="nav-section-label">Finance</div>
+        <div class="sidebar-item" onclick="supplierTab('earnings',this)"><span class="icon">💰</span> Earnings</div>
+        <div class="sidebar-item" onclick="supplierTab('escrow',this)"><span class="icon">🔒</span> Escrow Pending</div>
+        <div class="nav-section-label">Settings</div>
+        <div class="sidebar-item" onclick="supplierTab('location',this)"><span class="icon">📍</span> Store Location</div>
+        <div class="sidebar-item" onclick="supplierTab('advertise',this)"><span class="icon">📢</span> Advertise</div>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="page-header"><div class="page-title">Supplier Dashboard</div><div class="page-sub">Mile 50 Market, Abakaliki · Ebonyi State</div></div>
+      <!-- STOREFRONT -->
+      <div id="s-storefront">
+      <div class="metric-row">
+        <div class="metric-card gold"><div class="metric-label">Monthly Revenue</div><div class="metric-value">₦8.4M</div><div class="metric-sub">May 2025</div></div>
+        <div class="metric-card green"><div class="metric-label">Pending Escrow</div><div class="metric-value">₦2.1M</div><div class="metric-sub">1 delivery awaiting confirm</div></div>
+        <div class="metric-card blue"><div class="metric-label">Active Orders</div><div class="metric-value">3</div><div class="metric-sub">2 in transit</div></div>
+        <div class="metric-card amber"><div class="metric-label">Rating</div><div class="metric-value">4.9★</div><div class="metric-sub">47 reviews</div></div>
+      </div>
+
+      <div class="alert alert-gold">📦 <strong>Delivery Pending:</strong> Order #VT-2054 (Cement × 200 bags) delivered to Plot 18. Awaiting client Adaeze to confirm receipt and release ₦2,100,000.</div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">My Inventory</div><button class="btn-sm btn-gold" onclick="supplierAddProduct()">+ Add Product</button></div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead><tr><th>Product</th><th>Unit</th><th>Price</th><th>Stock</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Iron Rod Y16</td><td>piece</td><td>₦6,800</td><td>580</td><td><button class="btn-sm btn-ghost" onclick="supplierEditProduct('Iron Rod Y16')">Edit</button></td></tr>
+                <tr><td>Iron Rod Y12</td><td>piece</td><td>₦4,200</td><td>940</td><td><button class="btn-sm btn-ghost" onclick="supplierEditProduct('Iron Rod Y12')">Edit</button></td></tr>
+                <tr><td>BRC Mesh</td><td>sheet</td><td>₦22,500</td><td>45</td><td><button class="btn-sm btn-ghost" onclick="supplierEditProduct('BRC Mesh')">Edit</button></td></tr>
+                <tr><td>Binding Wire</td><td>coil</td><td>₦1,100</td><td>350</td><td><button class="btn-sm btn-ghost" onclick="supplierEditProduct('Binding Wire')">Edit</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Pending Orders</div></div>
+            <div class="card-body">
+              <div style="background:#F5F8FC;border-radius:8px;padding:16px;border:1px solid var(--border)">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                  <div><div style="font-size:0.875rem;font-weight:600">Order #VT-2054</div><div style="font-size:0.78rem;color:var(--slate);margin-top:3px">Cement × 200 bags · Plot 18 Abakaliki</div><div style="font-size:0.78rem;color:var(--slate)">Client: Adaeze Okonkwo · 14 May 2025</div></div>
+                  <span class="badge badge-amber">Delivered</span>
+                </div>
+                <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between"><span style="font-size:0.875rem;font-weight:700">₦2,100,000</span><span style="font-size:0.78rem;color:var(--slate)">In escrow · 2.0% fee on release</span></div>
+                <div style="margin-top:10px"><button class="btn-sm btn-green" onclick="supplierConfirmDelivery('#VT-2054','2,100,000')">✅ Confirm Delivery</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Advertise on Vistru</div></div>
+            <div class="card-body">
+              <div style="background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:8px;padding:20px;color:white">
+                <div style="font-size:0.78rem;color:var(--slate-light);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.08em">Featured Storefront</div>
+                <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--gold);margin-bottom:8px">₦10,000 / month</div>
+                <div style="font-size:0.8rem;color:var(--slate-light);line-height:1.6;margin-bottom:14px">Top placement in all client supplier searches in your region. Featured stores get 3× more orders on average.</div>
+                <button class="btn-sm btn-gold" onclick="supplierActivateAd()">Activate Featured Listing</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div><!-- end s-storefront -->
+
+      <!-- ORDERS -->
+      <div id="s-orders" style="display:none">
+        <div class="page-header"><div class="page-title">Orders</div><div class="page-sub">All incoming orders from active construction projects.</div></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Active Orders</div><span class="badge badge-amber">1 Pending Action</span></div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead><tr><th>Order ID</th><th>Items</th><th>Client</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>#VT-2054</td><td>Cement × 200 bags</td><td>Adaeze Okonkwo</td><td>₦2,100,000</td><td><span class="badge badge-amber">Delivered</span></td><td><button class="btn-sm btn-green" onclick="supplierConfirmDelivery('#VT-2054','2,100,000')">Confirm</button></td></tr>
+                <tr><td>#VT-2048</td><td>Iron Rod Y16 × 200</td><td>Mr. Nwoba</td><td>₦1,360,000</td><td><span class="badge badge-blue">In Transit</span></td><td><button class="btn-sm btn-ghost" onclick="showToast('Delivery tracking opened for #VT-2048','info')">Track</button></td></tr>
+                <tr><td>#VT-2041</td><td>BRC Mesh × 30 sheets</td><td>Engr. Kalu (via client)</td><td>₦675,000</td><td><span class="badge badge-green">Delivered & Paid</span></td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- DELIVERIES -->
+      <div id="s-deliveries" style="display:none">
+        <div class="page-header"><div class="page-title">Deliveries</div><div class="page-sub">Track material dispatch and site delivery confirmations.</div></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Delivery Log</div></div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="timeline-item"><div class="timeline-dot dot-gold"></div><div><div class="timeline-title">#VT-2054 — 200 bags cement dispatched</div><div class="timeline-meta">14 May 2025 · Driver: Emeka Chukwu · Awaiting client confirmation</div></div></div>
+              <div class="timeline-item"><div class="timeline-dot dot-blue"></div><div><div class="timeline-title">#VT-2048 — Iron Rod Y16 × 200 in transit</div><div class="timeline-meta">16 May 2025 · ETA: Tomorrow</div></div></div>
+              <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">#VT-2041 — BRC Mesh delivered & confirmed</div><div class="timeline-meta">2 May 2025 · Escrow released ₦675,000</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EARNINGS (supplier) -->
+      <div id="s-earnings" style="display:none">
+        <div class="page-header"><div class="page-title">Earnings</div><div class="page-sub">Revenue from confirmed deliveries. Platform fee: 2% on each escrow release.</div></div>
+        <div class="metric-row">
+          <div class="metric-card gold"><div class="metric-label">Total Revenue</div><div class="metric-value">₦41.2M</div><div class="metric-sub">All time</div></div>
+          <div class="metric-card green"><div class="metric-label">This Month</div><div class="metric-value">₦8.4M</div><div class="metric-sub">May 2025</div></div>
+          <div class="metric-card amber"><div class="metric-label">Platform Fees Paid</div><div class="metric-value">₦824,000</div><div class="metric-sub">2% on releases (May)</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Payment History</div></div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead><tr><th>Date</th><th>Order</th><th>Gross</th><th>Fee (2%)</th><th>Net</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>2 May 2025</td><td>#VT-2041 BRC Mesh</td><td>₦675,000</td><td>₦13,500</td><td>₦661,500</td><td><span class="badge badge-green">Paid</span></td></tr>
+                <tr><td>18 Apr 2025</td><td>#VT-2031 Binding Wire</td><td>₦385,000</td><td>₦7,700</td><td>₦377,300</td><td><span class="badge badge-green">Paid</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESCROW PENDING (supplier) -->
+      <div id="s-escrow" style="display:none">
+        <div class="page-header"><div class="page-title">Escrow Pending</div><div class="page-sub">Funds held awaiting client delivery confirmation.</div></div>
+        <div class="escrow-box">
+          <div class="escrow-title">Total Held in Escrow</div>
+          <div class="escrow-amount">₦3,460,000</div>
+          <div class="escrow-sub">Released after client confirms delivery · 2% fee deducted on release</div>
+          <div class="escrow-breakdown">
+            <div class="escrow-item"><div class="escrow-item-label">Order #VT-2054</div><div class="escrow-item-val">₦2,100,000</div></div>
+            <div class="escrow-item"><div class="escrow-item-label">Order #VT-2048</div><div class="escrow-item-val">₦1,360,000</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STORE LOCATION -->
+      <div id="s-location" style="display:none">
+        <div class="page-header"><div class="page-title">Store Location</div><div class="page-sub">Your store address is shown to clients browsing suppliers.</div></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">📍 Store Address</div><button class="btn-sm btn-gold" onclick="showToast('Location editor opening…','info')">Edit</button></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+              <div><div style="font-size:0.78rem;font-weight:600;color:var(--slate);margin-bottom:4px">Store Name</div><div style="font-size:0.9rem;font-weight:600">Bamike Steel & Hardware Ltd</div></div>
+              <div><div style="font-size:0.78rem;font-weight:600;color:var(--slate);margin-bottom:4px">Category</div><div style="font-size:0.9rem">Iron Rods & Mesh</div></div>
+              <div><div style="font-size:0.78rem;font-weight:600;color:var(--slate);margin-bottom:4px">Address</div><div style="font-size:0.9rem">No. 14 Mile 50 Market, Abakaliki</div></div>
+              <div><div style="font-size:0.78rem;font-weight:600;color:var(--slate);margin-bottom:4px">Delivery Coverage</div><div style="font-size:0.9rem">Ebonyi State · 48hr turnaround</div></div>
+            </div>
+            <div class="alert alert-green" style="margin-top:0">✅ Location verified and visible to clients in supplier search.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADVERTISE (supplier) -->
+      <div id="s-advertise" style="display:none">
+        <div class="page-header"><div class="page-title">Advertise</div><div class="page-sub">Featured listing gives your store top placement in regional client searches.</div></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">📢 Featured Storefront Plan</div></div>
+          <div class="card-body">
+            <div style="background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:8px;padding:24px;color:white;margin-bottom:16px">
+              <div style="font-size:0.78rem;color:var(--slate-light);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Featured Listing</div>
+              <div style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--gold);margin-bottom:8px">₦10,000 / month</div>
+              <ul style="color:var(--slate-light);font-size:0.83rem;line-height:2;list-style:none">
+                <li>✅ Top placement in all client supplier searches</li>
+                <li>✅ "Featured" badge on your storefront</li>
+                <li>✅ Push notification to clients in your region</li>
+                <li>✅ 3× average order volume increase</li>
+              </ul>
+            </div>
+            <button class="btn-sm btn-gold" style="padding:10px 24px" onclick="supplierActivateAd()">Activate — ₦10,000/month</button>
+          </div>
+        </div>
+      </div>
+
+<!-- ══ LAWYER DASHBOARD ══ -->
+<div id="view-lawyer" class="view">
+  <div class="dashboard">
+    <div class="sidebar">
+      <div class="sidebar-header"><div class="sidebar-user"><div class="avatar" style="background:linear-gradient(135deg,#2C3E50,#1A252F)">BO</div><div><div class="user-name">Barr. Obiechina</div><div class="user-role">Platform Lawyer</div></div></div></div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Cases</div>
+        <div class="sidebar-item active" onclick="lawyerTab('cases',this)"><span class="icon">📋</span> All Cases</div>
+        <div class="sidebar-item" onclick="lawyerTab('verification',this)"><span class="icon">🔍</span> Verification Queue <span class="sidebar-badge">2</span></div>
+        <div class="sidebar-item" onclick="lawyerTab('contracts',this)"><span class="icon">📜</span> Contracts</div>
+        <div class="sidebar-item" onclick="lawyerTab('arbitrations',this)"><span class="icon">⚖️</span> Arbitrations <span class="sidebar-badge">1</span></div>
+        <div class="nav-section-label">Finance</div>
+        <div class="sidebar-item" onclick="lawyerTab('fees',this)"><span class="icon">💰</span> Fees Earned</div>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="page-header"><div class="page-title">Legal Dashboard</div><div class="page-sub">LLB, BL · Platform Certified · NBA Enugu Branch</div></div>
+      <div class="metric-row">
+        <div class="metric-card gold"><div class="metric-label">Fees Earned</div><div class="metric-value">₦4.2M</div><div class="metric-sub">All time</div></div>
+        <div class="metric-card blue"><div class="metric-label">Active Cases</div><div class="metric-value">5</div><div class="metric-sub">3 verif · 1 contract · 1 arbitration</div></div>
+        <div class="metric-card green"><div class="metric-label">Contracts Drafted</div><div class="metric-value">18</div><div class="metric-sub">Zero disputes on platform</div></div>
+        <div class="metric-card amber"><div class="metric-label">Pending Queue</div><div class="metric-value">2</div><div class="metric-sub">New verification requests</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">🔍 Land Verification Queue</div><span class="badge badge-amber">2 Pending</span></div>
+        <div class="card-body">
+          <div class="doc-verify-card">
+            <div class="doc-verify-header"><div style="display:flex;align-items:center;gap:12px"><span class="doc-icon">📋</span><div><div class="doc-name">Plot 22, Ishieke Layout, Ebonyi LGA</div><div class="doc-meta">Client: Obi Nwankwo · 13 May 2025 · 3 documents</div></div></div><span class="badge badge-amber">Under Review</span></div>
+            <div class="doc-actions">
+              <button class="btn-sm btn-navy" onclick="alert('Opening document viewer for Plot 22')">Review Documents</button>
+              <button class="btn-sm btn-green" onclick="alert('✅ Plot 22 VERIFIED\nFee earned: ₦242,500 (1.5% of ₦16.2M)')">✅ Mark Verified</button>
+              <button class="btn-sm" style="background:var(--red-pale);color:var(--red);border:none" onclick="alert('⛔ Dispute flagged. Client notified. Project paused.')">⛔ Flag Dispute</button>
+            </div>
+          </div>
+          <div class="doc-verify-card">
+            <div class="doc-verify-header"><div style="display:flex;align-items:center;gap:12px"><span class="doc-icon">🗺️</span><div><div class="doc-name">No. 7 Ogoja Road, Abakaliki</div><div class="doc-meta">Client: Precious Agbo · Today · 2 documents</div></div></div><span class="badge badge-slate">New</span></div>
+            <div class="doc-actions">
+              <button class="btn-sm btn-navy" onclick="alert('Opening documents for Ogoja Road')">Review Documents</button>
+              <button class="btn-sm btn-green" onclick="alert('✅ Verified')">✅ Mark Verified</button>
+              <button class="btn-sm" style="background:var(--red-pale);color:var(--red);border:none" onclick="alert('⛔ Flagged')">⛔ Flag Dispute</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📜 Active Contracts</div><button class="btn-sm btn-gold" onclick="alert('Opening contract drafting tool')">+ Draft New</button></div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead><tr><th>Project</th><th>Parties</th><th>Fee</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Plot 18 Duplex</td><td style="font-size:0.78rem">Adaeze O. ↔ Engr. Eze</td><td>₦485,000</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td>Ezzamgbo Bungalow</td><td style="font-size:0.78rem">Mrs. Nze ↔ Engr. Kalu</td><td>₦320,000</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td>Ikwo Warehouse</td><td style="font-size:0.78rem">Odii Prop. ↔ Engr. Mba</td><td>₦720,000</td><td><span class="badge badge-amber">Draft</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">⚖️ Arbitration Cases</div></div>
+          <div class="card-body">
+            <div style="background:var(--red-pale);border:1px solid rgba(192,57,43,0.2);border-radius:8px;padding:16px;margin-bottom:12px">
+              <div style="font-size:0.875rem;font-weight:600;color:var(--red);margin-bottom:4px">ARB-2025-003 · Ongoing</div>
+              <div style="font-size:0.8rem;color:#7A2218">Delayed plastering dispute — Client Eze vs Engr. Nwosu. Filed 8 May 2025.</div>
+              <div style="font-size:0.78rem;color:var(--slate);margin-top:6px">Fee paid: ₦75,000 + ₦37,500 (0.5% of ₦7.5M)</div>
+              <div style="margin-top:10px;display:flex;gap:8px">
+                <button class="btn-sm btn-navy" onclick="alert('Opening case file ARB-2025-003')">Open Case</button>
+                <button class="btn-sm" style="background:var(--green-pale);color:var(--green);border:none" onclick="alert('Issuing ruling for ARB-2025-003')">Issue Ruling</button>
+              </div>
+            </div>
+            <div style="text-align:center;padding:16px;color:var(--slate);font-size:0.8rem">No other active arbitrations.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   VISTRU — FULL INTERACTION ENGINE
+   ═══════════════════════════════════════════════════════ */
+
+/* ── View Router ── */
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const target = document.getElementById('view-' + name);
+  if (target) target.classList.add('active');
+  const map = { landing:'Platform', client:'Client', engineer:'Engineer', supplier:'Supplier', lawyer:'Legal' };
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.toggle('active', t.textContent.trim() === (map[name] || ''));
+  });
+  window.scrollTo(0, 0);
+  // Reset sub-panels when switching views
+  if (name === 'client')   clientTab('overview', document.querySelector('#view-client .sidebar-item'));
+  if (name === 'engineer') engineerTab('projects', document.querySelector('#view-engineer .sidebar-item'));
+  if (name === 'supplier') supplierTab('storefront', document.querySelector('#view-supplier .sidebar-item'));
+  if (name === 'lawyer')   lawyerTab('cases', document.querySelector('#view-lawyer .sidebar-item'));
+}
+
+/* ── Scroll to How It Works (works from any view) ── */
+function scrollToHow() {
+  showView('landing');
+  setTimeout(() => {
+    const el = document.getElementById('how-section');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }, 80);
+}
+
+/* ════════════════════════════════════════════════════
+   CLIENT DASHBOARD TABS
+   ════════════════════════════════════════════════════ */
+function clientTab(tab, el) {
+  document.querySelectorAll('[id^="c-"]').forEach(p => { p.style.display = 'none'; });
+  const t = document.getElementById('c-' + tab);
+  if (t) t.style.display = '';
+  document.querySelectorAll('#view-client .sidebar-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+/* ════════════════════════════════════════════════════
+   ENGINEER DASHBOARD TABS
+   ════════════════════════════════════════════════════ */
+function engineerTab(tab, el) {
+  document.querySelectorAll('[id^="e-"]').forEach(p => { p.style.display = 'none'; });
+  const t = document.getElementById('e-' + tab);
+  if (t) t.style.display = '';
+  document.querySelectorAll('#view-engineer .sidebar-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+/* ════════════════════════════════════════════════════
+   SUPPLIER DASHBOARD TABS
+   ════════════════════════════════════════════════════ */
+function supplierTab(tab, el) {
+  document.querySelectorAll('[id^="s-"]').forEach(p => { p.style.display = 'none'; });
+  const t = document.getElementById('s-' + tab);
+  if (t) t.style.display = '';
+  document.querySelectorAll('#view-supplier .sidebar-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+/* ════════════════════════════════════════════════════
+   LAWYER DASHBOARD TABS
+   ════════════════════════════════════════════════════ */
+function lawyerTab(tab, el) {
+  document.querySelectorAll('[id^="l-"]').forEach(p => { p.style.display = 'none'; });
+  const t = document.getElementById('l-' + tab);
+  if (t) t.style.display = '';
+  document.querySelectorAll('#view-lawyer .sidebar-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+/* ════════════════════════════════════════════════════
+   MODAL SYSTEM
+   ════════════════════════════════════════════════════ */
+function openModal(id) {
+  const m = document.getElementById(id);
+  if (m) { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+}
+function closeModal(id) {
+  const m = document.getElementById(id);
+  if (m) { m.style.display = 'none'; document.body.style.overflow = ''; }
+}
+// Close modal on backdrop click
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-backdrop')) {
+    closeModal(e.target.id);
+  }
+});
+
+/* ════════════════════════════════════════════════════
+   CLIENT ACTIONS
+   ════════════════════════════════════════════════════ */
+function clientReleaseMilestone(milestone, amount, fee) {
+  const confirmed = confirm(
+    '⚠️  RELEASE ESCROW PAYMENT\n\n' +
+    'Milestone: ' + milestone + '\n' +
+    'Amount to Engineer: ₦' + amount + '\n' +
+    'Platform fee (2.5%): ₦' + fee + '\n\n' +
+    'This action is IRREVERSIBLE. Confirm release?'
+  );
+  if (confirmed) {
+    showToast('✅ ₦' + amount + ' released to Engr. Eze. Fee ₦' + fee + ' deducted.', 'success');
+  }
+}
+
+function clientRaiseDispute() {
+  openModal('modal-dispute');
+}
+
+function clientOrderSupplier(name) {
+  openModal('modal-supplier-order');
+  document.getElementById('modal-order-supplier').textContent = name;
+}
+
+function clientViewDrawing(type) {
+  openModal('modal-drawing-viewer');
+  document.getElementById('modal-drawing-type').textContent = type;
+}
+
+function clientViewContract() {
+  openModal('modal-contract');
+}
+
+function clientFileArbitration() {
+  openModal('modal-arbitration');
+}
+
+function clientFilterSuppliers(cat, el) {
+  document.querySelectorAll('.supplier-filter-btn').forEach(b => b.classList.remove('active-tag'));
+  if (el) el.classList.add('active-tag');
+  const cards = document.querySelectorAll('.supplier-card[data-cat]');
+  cards.forEach(c => {
+    c.style.display = (cat === 'all' || c.dataset.cat === cat) ? '' : 'none';
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   ENGINEER ACTIONS
+   ════════════════════════════════════════════════════ */
+function engineerViewDrawings(project) {
+  openModal('modal-drawing-viewer');
+  document.getElementById('modal-drawing-type').textContent = 'Drawings — ' + project;
+}
+
+function engineerSubmitBOQ(project) {
+  openModal('modal-boq-submit');
+  const el = document.getElementById('modal-boq-project');
+  if (el) el.textContent = project;
+}
+
+function engineerFileMilestone(milestone) {
+  const confirmed = confirm(
+    '📋 FILE MILESTONE COMPLETION\n\n' +
+    'Milestone: ' + milestone + '\n\n' +
+    'This will notify the client and trigger AI site verification.\nConfirm filing?'
+  );
+  if (confirmed) {
+    showToast('✅ ' + milestone + ' filed. Client notified. AI verification triggered.', 'success');
+  }
+}
+
+function engineerFileArbitration() {
+  openModal('modal-arbitration');
+}
+
+function engineerDownloadBOQ() {
+  showToast('📄 BOQ PDF downloading…', 'info');
+}
+
+/* ════════════════════════════════════════════════════
+   SUPPLIER ACTIONS
+   ════════════════════════════════════════════════════ */
+function supplierAddProduct() {
+  openModal('modal-add-product');
+}
+
+function supplierEditProduct(name) {
+  openModal('modal-edit-product');
+  const el = document.getElementById('modal-edit-product-name');
+  if (el) el.value = name;
+}
+
+function supplierConfirmDelivery(orderId, amount) {
+  const confirmed = confirm(
+    '🚚 CONFIRM DELIVERY\n\n' +
+    'Order: ' + orderId + '\n' +
+    'Escrow amount: ₦' + amount + '\n\n' +
+    'Confirm that materials have been delivered to site?\n' +
+    'Client will be notified to release escrow payment.'
+  );
+  if (confirmed) {
+    showToast('✅ Delivery confirmed for ' + orderId + '. Client notified to release ₦' + amount + '.', 'success');
+  }
+}
+
+function supplierActivateAd() {
+  openModal('modal-ad-subscribe');
+}
+
+/* ════════════════════════════════════════════════════
+   LAWYER ACTIONS
+   ════════════════════════════════════════════════════ */
+function lawyerReviewDocs(plot) {
+  openModal('modal-doc-review');
+  const el = document.getElementById('modal-doc-plot');
+  if (el) el.textContent = plot;
+}
+
+function lawyerVerifyLand(plot, fee) {
+  const confirmed = confirm(
+    '✅ MARK LAND VERIFIED\n\n' +
+    'Plot: ' + plot + '\n' +
+    'Fee earned: ₦' + fee + '\n\n' +
+    'This will unlock drawing upload for the client.\nConfirm verification?'
+  );
+  if (confirmed) {
+    showToast('✅ ' + plot + ' verified. Client unlocked. Fee ₦' + fee + ' credited.', 'success');
+  }
+}
+
+function lawyerFlagDispute(plot) {
+  const confirmed = confirm(
+    '⛔ FLAG LAND DISPUTE\n\n' +
+    'Plot: ' + plot + '\n\n' +
+    'This will pause the project and notify the client.\nConfirm flag?'
+  );
+  if (confirmed) {
+    showToast('⛔ Dispute flagged for ' + plot + '. Client notified. Project paused.', 'warning');
+  }
+}
+
+function lawyerDraftContract() {
+  openModal('modal-draft-contract');
+}
+
+function lawyerOpenCase(caseId) {
+  openModal('modal-case-file');
+  const el = document.getElementById('modal-case-id');
+  if (el) el.textContent = caseId;
+}
+
+function lawyerIssueRuling(caseId) {
+  openModal('modal-ruling');
+  const el = document.getElementById('modal-ruling-case');
+  if (el) el.textContent = caseId;
+}
+
+function lawyerViewFees() {
+  lawyerTab('fees', null);
+}
+
+/* ════════════════════════════════════════════════════
+   FILE UPLOAD HANDLER
+   ════════════════════════════════════════════════════ */
+function triggerUpload(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) input.click();
+}
+function handleUpload(inputId, listId) {
+  const input = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+  if (!input || !list || !input.files.length) return;
+  Array.from(input.files).forEach(file => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)';
+    row.innerHTML = '<div style="display:flex;align-items:center;gap:10px"><span>📋</span><span style="font-size:0.875rem">' + file.name + '</span></div><span class="badge badge-amber">Uploading…</span>';
+    list.appendChild(row);
+    setTimeout(() => {
+      row.querySelector('.badge').className = 'badge badge-green';
+      row.querySelector('.badge').textContent = 'Uploaded';
+    }, 1200);
+  });
+  showToast('✅ ' + input.files.length + ' file(s) uploaded successfully.', 'success');
+}
+
+/* ════════════════════════════════════════════════════
+   TOAST NOTIFICATION
+   ════════════════════════════════════════════════════ */
+function showToast(msg, type) {
+  const existing = document.getElementById('vistru-toast');
+  if (existing) existing.remove();
+  const colors = { success:'#1A7A4A', warning:'#C9922A', info:'#1A4272', error:'#C0392B' };
+  const t = document.createElement('div');
+  t.id = 'vistru-toast';
+  t.style.cssText = 'position:fixed;bottom:28px;right:28px;z-index:9999;background:' + (colors[type]||colors.info) + ';color:#fff;padding:14px 20px;border-radius:10px;font-size:0.875rem;font-weight:500;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,0.25);animation:toastIn 0.3s ease;line-height:1.5;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { if (t.parentNode) t.remove(); }, 4000);
+}
+
+/* ════════════════════════════════════════════════════
+   FORM SUBMIT HANDLER (generic — prevents page reload)
+   ════════════════════════════════════════════════════ */
+document.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const modalId = form.closest('.modal-backdrop')?.id;
+  const label = form.dataset.successMsg || 'Submitted successfully.';
+  showToast('✅ ' + label, 'success');
+  if (modalId) setTimeout(() => closeModal(modalId), 300);
+});
+
+/* CSS for toast animation injected once */
+const _s = document.createElement('style');
+_s.textContent = '@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}} .active-tag{background:var(--navy)!important;color:var(--white)!important;}';
+document.head.appendChild(_s);
+</script>
+</body>
+</html>
