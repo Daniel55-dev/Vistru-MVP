@@ -253,7 +253,7 @@ footer { background:#060F1C; padding:48px; display:grid; grid-template-columns:2
     <button class="nav-tab" onclick="showView('supplier')">Supplier</button>
     <button class="nav-tab" onclick="showView('lawyer')">Legal</button>
   </div>
-  <button class="nav-cta" onclick="showView('client')">Get Started</button>
+  <button class="nav-cta" onclick="openModal('modal-register')">Get Started</button>
 </nav>
 
 <!-- ══ LANDING ══ -->
@@ -266,7 +266,7 @@ footer { background:#060F1C; padding:48px; display:grid; grid-template-columns:2
       <h1>Build with <em>confidence,</em><br>anywhere.</h1>
       <p>Nigeria's first end-to-end remote construction supervision platform — connecting clients, engineers, suppliers, and legal professionals through a single trusted system with AI-powered site monitoring and escrow-protected payments.</p>
       <div class="hero-actions">
-        <button class="btn-primary" onclick="showView('client')">Start a Project</button>
+        <button class="btn-primary" onclick="openModal('modal-register')">Start a Project</button>
         <button class="btn-outline" onclick="scrollToHow()">How it Works ↓</button>
       </div>
     </div>
@@ -1345,6 +1345,604 @@ document.addEventListener('submit', function(e) {
 const _s = document.createElement('style');
 _s.textContent = '@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}} .active-tag{background:var(--navy)!important;color:var(--white)!important;}';
 document.head.appendChild(_s);
+
+/* ═══════════════════════════════════════════════════════
+   HAMBURGER + SIDEBAR DRAWER
+═══════════════════════════════════════════════════════ */
+function toggleSidebar() {
+  const drawer = document.getElementById('sidebar-drawer');
+  const overlay = document.getElementById('sidebar-overlay');
+  const isOpen = drawer.classList.contains('open');
+  if (isOpen) { closeSidebar(); return; }
+  // Build sidebar for current view
+  const view = document.querySelector('.view.active');
+  const viewId = view ? view.id : 'view-landing';
+  let html = '';
+  if (viewId === 'view-client') {
+    html = buildSidebar('Adaeze Okonkwo','Property Client',[
+      {lbl:'Project'},
+      {ico:'🏠',txt:'Overview',fn:"clientTab('overview',null);closeSidebar()"},
+      {ico:'📄',txt:'Land Verification',fn:"clientTab('land',null);closeSidebar()"},
+      {ico:'📐',txt:'Drawings & BOQ',fn:"clientTab('drawings',null);closeSidebar()"},
+      {ico:'📹',txt:'CCTV & AI Reports',fn:"clientTab('cctv',null);closeSidebar()",badge:'3'},
+      {lbl:'Finance'},
+      {ico:'🔒',txt:'Escrow & Payments',fn:"clientTab('escrow',null);closeSidebar()"},
+      {ico:'🏪',txt:'Suppliers',fn:"clientTab('suppliers',null);closeSidebar()"},
+      {lbl:'Legal'},
+      {ico:'📜',txt:'Contract',fn:"clientTab('contract',null);closeSidebar()"},
+      {ico:'⚖️',txt:'Arbitration',fn:"clientTab('arbitration',null);closeSidebar()"},
+    ]);
+  } else if (viewId === 'view-engineer') {
+    html = buildSidebar('Engr. Chidi Eze','Civil Engineer',[
+      {lbl:'Work'},
+      {ico:'📋',txt:'My Projects',fn:"engineerTab('projects',null);closeSidebar()"},
+      {ico:'🔔',txt:'Opportunities',fn:"engineerTab('opportunities',null);closeSidebar()",badge:'2'},
+      {ico:'📝',txt:'Submit BOQ',fn:"engineerTab('boq',null);closeSidebar()"},
+      {ico:'🏁',txt:'Milestones',fn:"engineerTab('milestones',null);closeSidebar()"},
+      {ico:'💳',txt:'Project Loan',fn:"engineerTab('loan',null);closeSidebar()"},
+      {lbl:'Finance'},
+      {ico:'💰',txt:'Earnings',fn:"engineerTab('earnings',null);closeSidebar()"},
+      {lbl:'Profile'},
+      {ico:'🪪',txt:'Credentials & Licence',fn:"engineerTab('credentials',null);closeSidebar()"},
+      {ico:'📢',txt:'Portfolio & Ads',fn:"engineerTab('portfolio',null);closeSidebar()"},
+      {ico:'⚖️',txt:'Arbitration',fn:"engineerTab('arbitration',null);closeSidebar()"},
+    ]);
+  } else if (viewId === 'view-supplier') {
+    html = buildSidebar('Bamike Steel Ltd','Material Supplier',[
+      {lbl:'Store'},
+      {ico:'🏪',txt:'My Storefront',fn:"supplierTab('storefront',null);closeSidebar()"},
+      {ico:'📦',txt:'Orders',fn:"supplierTab('orders',null);closeSidebar()",badge:'1'},
+      {ico:'🚚',txt:'Deliveries',fn:"supplierTab('deliveries',null);closeSidebar()"},
+      {lbl:'Finance'},
+      {ico:'💰',txt:'Earnings',fn:"supplierTab('earnings',null);closeSidebar()"},
+      {ico:'🔒',txt:'Escrow Pending',fn:"supplierTab('escrow',null);closeSidebar()"},
+      {lbl:'Settings'},
+      {ico:'📍',txt:'Store Location',fn:"supplierTab('location',null);closeSidebar()"},
+      {ico:'📢',txt:'Advertise',fn:"supplierTab('advertise',null);closeSidebar()"},
+    ]);
+  } else if (viewId === 'view-lawyer') {
+    html = buildSidebar('Barr. Obiechina','Platform Lawyer',[
+      {lbl:'Cases'},
+      {ico:'📋',txt:'All Cases',fn:"lawyerTab('cases',null);closeSidebar()"},
+      {ico:'🔍',txt:'Verification Queue',fn:"lawyerTab('verification',null);closeSidebar()",badge:'2'},
+      {ico:'📜',txt:'Contracts',fn:"lawyerTab('contracts',null);closeSidebar()"},
+      {ico:'⚖️',txt:'Arbitrations',fn:"lawyerTab('arbitrations',null);closeSidebar()",badge:'1'},
+      {ico:'📍',txt:'Assigned Region',fn:"lawyerTab('region',null);closeSidebar()"},
+      {lbl:'Finance'},
+      {ico:'💰',txt:'Fees Earned',fn:"lawyerTab('fees',null);closeSidebar()"},
+    ]);
+  } else {
+    html = buildSidebar('Vistru','Platform',[
+      {lbl:'Menu'},
+      {ico:'🏠',txt:'Home',fn:"showView('landing');closeSidebar()"},
+      {ico:'ℹ️',txt:'How It Works',fn:'scrollToHow();closeSidebar()'},
+      {ico:'💰',txt:'Pricing',fn:'scrollToFees();closeSidebar()'},
+      {lbl:'Portals'},
+      {ico:'👤',txt:'Client Dashboard',fn:"showView('client')"},
+      {ico:'🏗️',txt:'Engineer Dashboard',fn:"showView('engineer')"},
+      {ico:'🏪',txt:'Supplier Dashboard',fn:"showView('supplier')"},
+      {ico:'⚖️',txt:'Legal Dashboard',fn:"showView('lawyer')"},
+    ]);
+  }
+  document.getElementById('sidebar-content').innerHTML = html;
+  drawer.classList.add('open');
+  overlay.classList.add('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar-drawer').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+function buildSidebar(name, role, items) {
+  let h = `<div style="padding:20px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.07)">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--navy-light));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;color:#fff;flex-shrink:0">${name.slice(0,2).toUpperCase()}</div>
+      <div><div style="font-size:0.88rem;font-weight:600;color:#fff">${name}</div><div style="font-size:0.68rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.06em">${role}</div></div>
+    </div></div><div style="padding:10px 10px">`;
+  items.forEach(i => {
+    if (i.lbl) {
+      h += `<div style="font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--slate);padding:10px 8px 4px">${i.lbl}</div>`;
+    } else {
+      const badge = i.badge ? `<span style="margin-left:auto;background:var(--gold);color:var(--navy);font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:10px">${i.badge}</span>` : '';
+      h += `<div style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;font-size:0.875rem;color:var(--slate-light);cursor:pointer;margin-bottom:1px;transition:all 0.2s" onclick="${i.fn}" onmouseover="this.style.background='rgba(255,255,255,0.07)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='var(--slate-light)'"><span style="font-size:1rem;width:20px;text-align:center">${i.ico}</span>${i.txt}${badge}</div>`;
+    }
+  });
+  return h + '</div>';
+}
+
+function scrollToFees() {
+  showView('landing');
+  setTimeout(() => {
+    const el = document.querySelector('.fees-section');
+    if (el) el.scrollIntoView({behavior:'smooth'});
+  }, 80);
+}
+
+/* ═══════════════════════════════════════════════════════
+   REGISTRATION MODAL HANDLER
+═══════════════════════════════════════════════════════ */
+function openRegisterModal() { openModal('modal-register'); }
+let selectedRegRole = 'client';
+function selectRegRole(el, role) {
+  selectedRegRole = role;
+  document.querySelectorAll('.reg-role-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  const licGroup = document.getElementById('reg-license-group');
+  if (licGroup) licGroup.style.display = (role === 'engineer' || role === 'lawyer') ? 'block' : 'none';
+  const idSection = document.getElementById('reg-id-section');
+  if (idSection) {
+    const label = {client:'Means of ID (NIN / Passport / Voter Card)', engineer:'Professional Licence No. (COREN)', lawyer:'Legal Licence No. (NBA)', supplier:'Business Registration No. (CAC)'}[role];
+    const el2 = document.getElementById('reg-id-label');
+    if (el2) el2.textContent = label;
+  }
+}
+function handleRegister() {
+  closeModal('modal-register');
+  const viewMap = {client:'client', engineer:'engineer', supplier:'supplier', lawyer:'lawyer'};
+  showView(viewMap[selectedRegRole] || 'client');
+  showToast('✅ Welcome to Vistru! Your account has been created.', 'success');
+}
+
+/* ═══════════════════════════════════════════════════════
+   NEW PANELS: ENGINEER LOAN, PORTFOLIO, LICENCE
+═══════════════════════════════════════════════════════ */
+function engineerTab(tab, el) {
+  // Hide all engineer panels
+  document.querySelectorAll('[id^="e-panel-"]').forEach(p => p.style.display = 'none');
+  const t = document.getElementById('e-panel-' + tab);
+  if (t) { t.style.display = ''; }
+  // Update active sidebar item
+  document.querySelectorAll('#view-engineer .sidebar-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════
+   LAWYER REGION TAB
+═══════════════════════════════════════════════════════ */
+function lawyerTab(tab, el) {
+  document.querySelectorAll('[id^="l-"]').forEach(p => p.style.display = 'none');
+  const t = document.getElementById('l-' + tab);
+  if (t) t.style.display = '';
+  document.querySelectorAll('#view-lawyer .sidebar-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════
+   AI MATERIAL COUNT PANEL (CCTV)
+═══════════════════════════════════════════════════════ */
+function openMaterialCount() {
+  openModal('modal-material-count');
+}
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     HAMBURGER SIDEBAR STYLES + DRAWER HTML
+═══════════════════════════════════════════════════════ -->
+<style>
+.hamburger-btn { background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer; padding:4px 10px; border-radius:6px; transition:background 0.2s; flex-shrink:0; }
+.hamburger-btn:hover { background:rgba(255,255,255,0.08); }
+.sb-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:800; display:none; }
+.sb-overlay.open { display:block; }
+.sb-drawer { position:fixed; top:64px; left:0; bottom:0; width:270px; background:var(--navy); z-index:810; transform:translateX(-100%); transition:transform 0.28s ease; overflow-y:auto; border-right:1px solid rgba(255,255,255,0.06); }
+.sb-drawer.open { transform:translateX(0); }
+/* Modal styles for register */
+.modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:2000; display:none; align-items:center; justify-content:center; padding:16px; }
+.modal-backdrop.open { display:flex; }
+.modal-box-inner { background:#fff; border-radius:16px; width:100%; max-width:480px; max-height:92vh; overflow-y:auto; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+.modal-box-inner .mh { padding:22px 22px 0; display:flex; align-items:flex-start; justify-content:space-between; }
+.modal-box-inner .mt { font-family:'Playfair Display',serif; font-size:1.35rem; font-weight:700; color:var(--navy); }
+.modal-box-inner .mc-btn { background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--slate); line-height:1; }
+.modal-box-inner .mb { padding:16px 22px 26px; }
+.modal-box-inner .ms { font-size:0.85rem; color:var(--slate); margin-bottom:18px; }
+.reg-role-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:18px; }
+.reg-role-opt { border:2px solid var(--border); border-radius:10px; padding:14px 10px; text-align:center; cursor:pointer; transition:all 0.2s; }
+.reg-role-opt:hover { border-color:var(--gold); }
+.reg-role-opt.selected { border-color:var(--navy); background:#EBF3FC; }
+.reg-role-opt .ri { font-size:1.4rem; margin-bottom:4px; }
+.reg-role-opt .rn { font-size:0.78rem; font-weight:700; color:var(--navy); }
+.form-group2 { margin-bottom:13px; }
+.form-group2 label { display:block; font-size:0.8rem; font-weight:600; color:var(--navy); margin-bottom:4px; }
+.form-group2 input, .form-group2 select { width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:7px; font-family:'DM Sans',sans-serif; font-size:0.875rem; color:var(--navy); outline:none; transition:border-color 0.2s; }
+.form-group2 input:focus, .form-group2 select:focus { border-color:var(--navy-light); }
+.form-submit2 { width:100%; padding:12px; background:var(--navy); color:#fff; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.92rem; font-weight:600; cursor:pointer; margin-top:4px; transition:background 0.2s; }
+.form-submit2:hover { background:var(--navy-mid); }
+/* Loan card */
+.loan-card { background:linear-gradient(135deg,#1A4272,#0B1F3A); border-radius:12px; padding:22px; color:#fff; margin-bottom:16px; }
+.loan-amount { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:700; color:var(--gold); }
+.licence-status { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:20px; font-size:0.82rem; font-weight:600; }
+.licence-active { background:var(--green-pale); color:var(--green); }
+.licence-expiring { background:var(--amber-pale); color:var(--amber); }
+.licence-expired { background:var(--red-pale); color:var(--red); }
+.portfolio-item { display:flex; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); }
+.portfolio-item:last-child { border-bottom:none; }
+.portfolio-thumb { width:60px; height:60px; border-radius:8px; background:linear-gradient(135deg,var(--navy),var(--navy-light)); display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0; }
+.ai-count-item { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
+.ai-count-item:last-child { border-bottom:none; }
+.ai-count-num { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--navy); }
+.ai-count-label { font-size:0.78rem; color:var(--slate); margin-top:2px; }
+.region-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(26,66,114,0.1); border:1px solid var(--navy-light); border-radius:8px; padding:10px 14px; font-size:0.85rem; font-weight:600; color:var(--navy); }
+</style>
+
+<div class="sb-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+<div class="sb-drawer" id="sidebar-drawer"><div id="sidebar-content"></div></div>
+
+<!-- ═══ MODAL: REGISTER ═══ -->
+<div class="modal-backdrop" id="modal-register">
+  <div class="modal-box-inner">
+    <div class="mh">
+      <div class="mt">Create Your Account</div>
+      <button class="mc-btn" onclick="closeModal('modal-register')">×</button>
+    </div>
+    <div class="mb">
+      <div class="ms">Select your role to get started on Vistru.</div>
+      <div class="reg-role-grid">
+        <div class="reg-role-opt selected" onclick="selectRegRole(this,'client')"><div class="ri">🏠</div><div class="rn">Client</div></div>
+        <div class="reg-role-opt" onclick="selectRegRole(this,'engineer')"><div class="ri">🏗️</div><div class="rn">Engineer</div></div>
+        <div class="reg-role-opt" onclick="selectRegRole(this,'supplier')"><div class="ri">🏪</div><div class="rn">Supplier</div></div>
+        <div class="reg-role-opt" onclick="selectRegRole(this,'lawyer')"><div class="ri">⚖️</div><div class="rn">Lawyer</div></div>
+      </div>
+      <div class="form-group2"><label>Full Name</label><input type="text" placeholder="e.g. Adaeze Okonkwo"></div>
+      <div class="form-group2"><label>Email Address</label><input type="email" placeholder="you@example.com"></div>
+      <div class="form-group2"><label>Phone Number</label><input type="tel" placeholder="+234 801 234 5678"></div>
+      <div class="form-group2"><label>Nationality</label><select><option>Nigerian</option><option>Other</option></select></div>
+      <div class="form-group2" id="reg-id-section">
+        <label id="reg-id-label">Means of ID (NIN / Passport / Voter Card)</label>
+        <input type="text" placeholder="Enter ID number">
+      </div>
+      <div class="form-group2" id="reg-license-group" style="display:none">
+        <label>Professional Licence No.</label>
+        <input type="text" placeholder="COREN / NBA Reg. No.">
+      </div>
+      <div class="form-group2"><label>State / Location</label>
+        <select><option>Ebonyi State</option><option>Enugu State</option><option>Anambra State</option><option>Lagos State</option><option>Abuja FCT</option><option>Other</option></select>
+      </div>
+      <div class="form-group2"><label>Password</label><input type="password" placeholder="Create a strong password"></div>
+      <button class="form-submit2" onclick="handleRegister()">Create Account →</button>
+      <div style="text-align:center;font-size:0.78rem;color:var(--slate);margin-top:10px">Already have an account? <a onclick="closeModal('modal-register');showToast('Sign-in coming soon','info')" style="color:var(--navy-light);cursor:pointer">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: MATERIAL COUNT (AI CCTV) ═══ -->
+<div class="modal-backdrop" id="modal-material-count">
+  <div class="modal-box-inner">
+    <div class="mh">
+      <div class="mt">🤖 AI Material Count</div>
+      <button class="mc-btn" onclick="closeModal('modal-material-count')">×</button>
+    </div>
+    <div class="mb">
+      <div class="ms">AI-interpreted material inventory from CCTV footage — Plot 18, GRA Extension · Today 09:14 AM</div>
+      <div style="background:linear-gradient(135deg,#EBF3FC,#F0F7FF);border:1px solid #C8DFF5;border-radius:10px;padding:16px;margin-bottom:16px">
+        <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:var(--navy-light);text-transform:uppercase;margin-bottom:12px">🔬 Vistru Vision v2.1 · Site Inventory Report</div>
+        <div class="ai-count-item"><div><div style="font-size:0.875rem;font-weight:600;color:var(--navy)">Cement Bags (Dangote 50kg)</div><div class="ai-count-label">Counted from delivery stack · Cam 03</div></div><div><div class="ai-count-num">197</div><div style="font-size:0.72rem;color:var(--slate)">of 200 ordered</div></div></div>
+        <div class="ai-count-item"><div><div style="font-size:0.875rem;font-weight:600;color:var(--navy)">Iron Rod Y16 (lengths)</div><div class="ai-count-label">Counted from stockpile · Cam 01</div></div><div><div class="ai-count-num">198</div><div style="font-size:0.72rem;color:var(--slate)">of 200 ordered</div></div></div>
+        <div class="ai-count-item"><div><div style="font-size:0.875rem;font-weight:600;color:var(--navy)">BRC Mesh Sheets</div><div class="ai-count-label">Stack detected · Cam 02</div></div><div><div class="ai-count-num">30</div><div style="font-size:0.72rem;color:var(--slate)">of 30 ordered ✅</div></div></div>
+        <div class="ai-count-item"><div><div style="font-size:0.875rem;font-weight:600;color:var(--navy)">Workers On Site</div><div class="ai-count-label">Person detection · All cams</div></div><div><div class="ai-count-num">9</div><div style="font-size:0.72rem;color:var(--slate)">Active · 09:00–16:00</div></div></div>
+        <div class="ai-count-item"><div><div style="font-size:0.875rem;font-weight:600;color:var(--navy)">Construction Progress</div><div class="ai-count-label">Milestone 4 — Roofing</div></div><div><div class="ai-count-num">98%</div><div style="font-size:0.72rem;color:var(--green)">Near complete</div></div></div>
+      </div>
+      <div style="background:var(--amber-pale);border:1px solid rgba(201,146,42,0.3);border-radius:8px;padding:12px;font-size:0.83rem;color:#7A5214;margin-bottom:14px">⚠️ <strong>3 cement bags unaccounted.</strong> 200 ordered, 197 detected. Possible spillage or transport loss. Recommend supplier clarification.</div>
+      <button class="btn-sm btn-navy" style="width:100%" onclick="closeModal('modal-material-count');showToast('AI count report saved and sent to client.','success')">✅ Accept Count Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: PROJECT LOAN (ENGINEER) ═══ -->
+<div class="modal-backdrop" id="modal-project-loan">
+  <div class="modal-box-inner">
+    <div class="mh">
+      <div class="mt">💳 Apply for Project Loan</div>
+      <button class="mc-btn" onclick="closeModal('modal-project-loan')">×</button>
+    </div>
+    <div class="mb">
+      <div class="ms">Vistru provides project loans to cover worker wages. The loan is automatically deducted from your next escrow release.</div>
+      <div class="loan-card">
+        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.5);margin-bottom:5px">Available Loan Limit</div>
+        <div class="loan-amount">₦3,640,000</div>
+        <div style="font-size:0.78rem;color:rgba(255,255,255,0.6);margin-top:4px">40% of next escrow milestone (M4: ₦9.1M)</div>
+      </div>
+      <div class="form-group2"><label>Loan Amount Requested (₦)</label><input type="number" placeholder="e.g. 1500000" max="3640000"></div>
+      <div class="form-group2"><label>Purpose</label><select><option>Worker wages — Week 1</option><option>Worker wages — Week 2</option><option>Site materials (minor)</option><option>Equipment hire</option></select></div>
+      <div class="form-group2"><label>Expected Repayment</label><select><option>From Milestone 4 release (Roofing)</option><option>From Milestone 5 release (Plastering)</option></select></div>
+      <div style="background:var(--green-pale);border:1px solid rgba(26,122,74,0.3);border-radius:8px;padding:12px;font-size:0.83rem;color:#0D4D2B;margin-bottom:14px">ℹ️ Loan is automatically repaid from escrow release. No manual repayment needed. Interest rate: 0% (platform-backed).</div>
+      <button class="form-submit2" onclick="closeModal('modal-project-loan');showToast('✅ Loan approved. Funds will be disbursed within 24 hours. Auto-deducted at next milestone release.','success')">Apply for Loan →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: FINAL INSPECTION (VISTRU HANDOVER) ═══ -->
+<div class="modal-backdrop" id="modal-final-inspection">
+  <div class="modal-box-inner">
+    <div class="mh">
+      <div class="mt">🏁 Final Inspection & Handover</div>
+      <button class="mc-btn" onclick="closeModal('modal-final-inspection')">×</button>
+    </div>
+    <div class="mb">
+      <div class="ms">A Vistru agent will carry out a final site inspection before handover. Fee: ₦20,000 per visit.</div>
+      <div style="background:var(--green-pale);border:1px solid rgba(26,122,74,0.3);border-radius:8px;padding:14px;margin-bottom:16px">
+        <div style="font-weight:600;color:var(--green);margin-bottom:8px">✅ All 7 Milestones Complete</div>
+        <div style="font-size:0.83rem;color:#0D4D2B;line-height:1.7">Foundation · GF Slab · Blockwork · Roofing · Plastering · Electrical & Plumbing · Finishes</div>
+      </div>
+      <div class="form-group2"><label>Preferred Inspection Date</label><input type="date"></div>
+      <div class="form-group2"><label>Preferred Time</label><select><option>9:00 AM</option><option>11:00 AM</option><option>2:00 PM</option></select></div>
+      <div style="background:var(--gold-pale);border:1px solid rgba(201,146,42,0.3);border-radius:8px;padding:12px;font-size:0.83rem;color:#7A5214;margin-bottom:14px">⚠️ Final escrow balance of ₦5.2M will be released to Engr. Eze after successful inspection confirmation.</div>
+      <button class="form-submit2" onclick="closeModal('modal-final-inspection');showToast('✅ Final inspection scheduled. Vistru agent will contact you 24 hours before the visit.','success')">Schedule Final Inspection →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Patch existing openModal to support both old and new modal IDs
+const _origOpen = openModal;
+openModal = function(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  // Support both .modal-overlay (old) and .modal-backdrop (new)
+  if (el.classList.contains('modal-overlay') || el.classList.contains('modal-backdrop')) {
+    el.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+};
+const _origClose = closeModal;
+closeModal = function(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('open');
+  document.body.style.overflow = '';
+};
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-backdrop')) {
+    e.target.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+});
+
+// Add hamburger button to nav dynamically
+(function() {
+  const nav = document.querySelector('nav');
+  if (!nav) return;
+  const btn = document.createElement('button');
+  btn.className = 'hamburger-btn';
+  btn.setAttribute('aria-label', 'Menu');
+  btn.innerHTML = '&#9776;';
+  btn.onclick = toggleSidebar;
+  nav.insertBefore(btn, nav.firstChild);
+  // Also make nav more mobile friendly
+  nav.style.gap = '10px';
+})();
+
+// Patch clientTab to also update sidebar highlight
+const _origClientTab = clientTab;
+clientTab = function(tab, el) {
+  _origClientTab(tab, el);
+};
+
+// Add new engineer tabs to existing dashboard
+(function addEngineerTabs() {
+  const main = document.querySelector('#view-engineer .main-content');
+  if (!main) return;
+
+  // Wrap existing content in e-panel-projects
+  const existing = main.innerHTML;
+  main.innerHTML = `<div id="e-panel-projects">${existing}</div>
+  <div id="e-panel-opportunities" style="display:none">
+    <div class="page-header"><div class="page-title">Project Opportunities</div><div class="page-sub">Verified projects seeking engineer BOQs. 2% platform fee if awarded.</div></div>
+    <div class="card" style="border-left:4px solid var(--gold);margin-bottom:14px">
+      <div class="card-header"><div class="card-title">🏠 3-Bedroom Bungalow · Ezza South LGA</div><span class="badge badge-amber">New</span></div>
+      <div class="card-body">
+        <div style="font-size:0.85rem;color:var(--slate);margin-bottom:8px">Land verified ✅ · Est. ₦18–25M · 3 BOQs received</div>
+        <span class="tag">Structural: 6 pages</span><span class="tag">Arch: 10 pages</span>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-sm btn-gold" onclick="showToast('Drawing viewer opening…','info')">View Drawings</button>
+          <button class="btn-sm btn-navy" onclick="openModal('modal-boq-submit');document.getElementById('modal-boq-project')&&(document.getElementById('modal-boq-project').textContent='3-Bed Bungalow, Ezza South LGA')">Submit BOQ</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-left:4px solid var(--navy-light)">
+      <div class="card-header"><div class="card-title">🏢 Office Block · Abakaliki Municipal</div><span class="badge badge-blue">New</span></div>
+      <div class="card-body">
+        <div style="font-size:0.85rem;color:var(--slate);margin-bottom:8px">Land verified ✅ · Est. ₦45–60M · 1 BOQ received</div>
+        <span class="tag">Structural: 18 pages</span><span class="tag">Arch: 22 pages</span><span class="tag">MEP included</span>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-sm btn-gold" onclick="showToast('Drawing viewer opening…','info')">View Drawings</button>
+          <button class="btn-sm btn-navy" onclick="showToast('BOQ submission form opening…','info')">Submit BOQ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="e-panel-boq" style="display:none">
+    <div class="page-header"><div class="page-title">Submit BOQ</div><div class="page-sub">Prepare and upload your Bill of Quantities. 2% fee only if awarded.</div></div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">📝 New BOQ Submission</div></div>
+      <div class="card-body">
+        <div class="form-group"><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:5px">Select Project</label><select style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.875rem"><option>3-Bedroom Bungalow · Ezza South LGA</option><option>Office Block · Abakaliki Municipal</option></select></div>
+        <div class="form-group"><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:5px">Total BOQ Value (₦)</label><input type="number" placeholder="e.g. 22000000" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.875rem"></div>
+        <div class="form-group"><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:5px">Estimated Duration (months)</label><input type="number" placeholder="e.g. 14" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.875rem"></div>
+        <div class="form-group" style="margin-bottom:16px"><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:5px">Upload BOQ Document (PDF)</label>
+          <div class="upload-zone" onclick="triggerUpload('boq-panel-upload')"><div style="font-size:1.8rem;margin-bottom:8px">📄</div><h4>Click to upload BOQ PDF</h4><p>Max 10MB · PDF only</p></div>
+          <input type="file" id="boq-panel-upload" accept=".pdf" style="display:none" onchange="handleUpload('boq-panel-upload','boq-panel-list')">
+          <div id="boq-panel-list"></div>
+        </div>
+        <div class="alert alert-green" style="margin-bottom:14px">ℹ️ A 2% platform fee is charged only if your BOQ is selected and the contract awarded.</div>
+        <button class="btn-sm btn-navy" style="padding:11px 28px" onclick="showToast('✅ BOQ submitted. Client will be notified.','success')">Submit BOQ →</button>
+      </div>
+    </div>
+  </div>
+  <div id="e-panel-milestones" style="display:none">
+    <div class="page-header"><div class="page-title">Milestones</div><div class="page-sub">File completions here. Client confirms and releases escrow.</div></div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Plot 18 Duplex — Milestone Status</div><span class="badge badge-amber">M4 Awaiting Client</span></div>
+      <div class="card-body">
+        <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M1 — Foundation</div><div class="milestone-detail">Paid 14 Jan 2025</div></div><div class="milestone-amount">₦6.5M</div></div>
+        <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M2 — GF Slab</div><div class="milestone-detail">Paid 22 Feb 2025</div></div><div class="milestone-amount">₦8.2M</div></div>
+        <div class="milestone-item"><span>✅</span><div style="flex:1"><div class="milestone-name">M3 — Blockwork</div><div class="milestone-detail">Paid 10 Apr 2025</div></div><div class="milestone-amount">₦7.8M</div></div>
+        <div class="milestone-item" style="border:1px solid var(--gold);background:var(--gold-pale);border-radius:8px;padding:12px"><span>⏳</span><div style="flex:1"><div class="milestone-name">M4 — Roofing</div><div class="milestone-detail">Filed — Awaiting client release</div></div><div class="milestone-amount" style="color:var(--amber)">₦9.1M</div></div>
+        <div class="milestone-item" style="opacity:0.5"><span>🔲</span><div style="flex:1"><div class="milestone-name">M5 — Plastering</div><div class="milestone-detail">Not yet started</div></div><div class="milestone-amount">₦6.2M</div></div>
+        <div class="milestone-item" style="opacity:0.4"><span>🔲</span><div style="flex:1"><div class="milestone-name">M6 — Electrical & Plumbing</div><div class="milestone-detail">Not yet started</div></div><div class="milestone-amount">₦5.4M</div></div>
+        <div class="milestone-item" style="opacity:0.4"><span>🔲</span><div style="flex:1"><div class="milestone-name">M7 — Finishes & Handover</div><div class="milestone-detail">Not yet started</div></div><div class="milestone-amount">₦5.2M</div></div>
+        <div style="margin-top:14px"><button class="btn-sm btn-navy" onclick="engineerFileMilestone('Milestone 5 — Plastering')">🏁 File Next Milestone</button></div>
+      </div>
+    </div>
+  </div>
+  <div id="e-panel-loan" style="display:none">
+    <div class="page-header"><div class="page-title">Project Loan</div><div class="page-sub">Borrow against your next milestone to pay workers. Auto-repaid at escrow release.</div></div>
+    <div class="loan-card">
+      <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.5);margin-bottom:5px">Available Loan Limit</div>
+      <div class="loan-amount">₦3,640,000</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);margin-top:4px">40% of next milestone (M4: ₦9.1M) · Interest-free</div>
+      <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap">
+        <div style="background:rgba(255,255,255,0.07);border-radius:6px;padding:10px 14px;flex:1;min-width:100px"><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.5)">Active Loan</div><div style="font-size:0.95rem;font-weight:600;margin-top:2px">₦0</div></div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:6px;padding:10px 14px;flex:1;min-width:100px"><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.5)">Auto-Repay At</div><div style="font-size:0.95rem;font-weight:600;margin-top:2px">M4 Release</div></div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:6px;padding:10px 14px;flex:1;min-width:100px"><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.5)">Interest Rate</div><div style="font-size:0.95rem;font-weight:600;margin-top:2px;color:var(--gold)">0%</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Apply for Project Loan</div></div>
+      <div class="card-body">
+        <p style="font-size:0.875rem;color:var(--slate);line-height:1.7;margin-bottom:16px">Vistru provides interest-free project loans backed by your upcoming escrow milestones. Funds cover worker wages and minor site expenses. Repayment is automatic — deducted from the next escrow release before balance is paid out to you.</p>
+        <button class="btn-sm btn-navy" onclick="openModal('modal-project-loan')">💳 Apply for Project Loan</button>
+      </div>
+    </div>
+  </div>
+  <div id="e-panel-earnings" style="display:none">
+    <div class="page-header"><div class="page-title">Earnings</div><div class="page-sub">All escrow releases credited to your account after client approval.</div></div>
+    <div class="metric-row">
+      <div class="metric-card gold"><div class="metric-label">Total Earned</div><div class="metric-value">₦22.5M</div><div class="metric-sub">All projects</div></div>
+      <div class="metric-card green"><div class="metric-label">This Month</div><div class="metric-value">₦0</div><div class="metric-sub">May 2025</div></div>
+      <div class="metric-card amber"><div class="metric-label">Pending Escrow</div><div class="metric-value">₦9.1M</div><div class="metric-sub">Awaiting client approval</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Payment History</div></div>
+      <div class="card-body">
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Project</th><th>Milestone</th><th>Amount</th><th>Loan Deducted</th><th>Net Received</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>10 Apr 2025</td><td>Plot 18</td><td>M3 — Blockwork</td><td>₦7,800,000</td><td>₦0</td><td>₦7,800,000</td><td><span class="badge badge-green">Received</span></td></tr>
+            <tr><td>22 Feb 2025</td><td>Plot 18</td><td>M2 — GF Slab</td><td>₦8,200,000</td><td>₦1,200,000</td><td>₦7,000,000</td><td><span class="badge badge-green">Received</span></td></tr>
+            <tr><td>14 Jan 2025</td><td>Plot 18</td><td>M1 — Foundation</td><td>₦6,500,000</td><td>₦0</td><td>₦6,500,000</td><td><span class="badge badge-green">Received</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="e-panel-credentials" style="display:none">
+    <div class="page-header"><div class="page-title">Credentials & Licence</div><div class="page-sub">Your verified professional profile. Expired licence disables all project access.</div></div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">🪪 Licence Status</div></div>
+      <div class="card-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div class="avatar" style="width:56px;height:56px;font-size:1.2rem">CE</div>
+            <div><div style="font-size:1rem;font-weight:700">Engr. Chidi Eze</div><div style="color:var(--slate);font-size:0.85rem;margin-top:2px">B.Eng Civil Engineering · 7 years</div></div>
+          </div>
+          <span class="licence-status licence-active">✅ Licence Active</span>
+        </div>
+        <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">COREN Registration: CR/2018/4521</div><div class="timeline-meta">Expires: 31 Dec 2025 · Active</div></div></div>
+        <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">NSE Member: NSE/2017/EBN/001</div><div class="timeline-meta">Verified</div></div></div>
+        <div class="timeline-item"><div class="timeline-dot dot-gold"></div><div><div class="timeline-title">Licence Renewal Reminder</div><div class="timeline-meta">Renew before 31 Dec 2025 — expiry disables project access</div></div></div>
+        <div style="margin-top:14px;padding:14px;background:var(--amber-pale);border:1px solid rgba(201,146,42,0.3);border-radius:8px;font-size:0.83rem;color:#7A5214">
+          ⚠️ <strong>Important:</strong> When your COREN licence expires, your profile will be automatically suspended from receiving new project notifications until renewal is confirmed.
+        </div>
+        <div style="margin-top:14px"><button class="btn-sm btn-navy" onclick="showToast('Licence renewal request submitted. Vistru will verify your updated COREN certificate.','success')">🔄 Submit Renewal</button></div>
+      </div>
+    </div>
+  </div>
+  <div id="e-panel-portfolio" style="display:none">
+    <div class="page-header"><div class="page-title">Portfolio & Advertisements</div><div class="page-sub">Showcase past projects to attract clients. Subscribe to featured listing for more visibility.</div></div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">📂 Past Projects</div><button class="btn-sm btn-gold" onclick="showToast('Add project form opening…','info')">+ Add Project</button></div>
+      <div class="card-body">
+        <div class="portfolio-item">
+          <div class="portfolio-thumb">🏠</div>
+          <div style="flex:1"><div style="font-size:0.875rem;font-weight:600">4-Bedroom Duplex · GRA Abakaliki</div><div style="font-size:0.78rem;color:var(--slate);margin-top:2px">Completed Jan 2024 · ₦42M · Client: Mr. Okafor</div><div style="margin-top:5px"><span class="badge badge-green">Completed On Time</span></div></div>
+        </div>
+        <div class="portfolio-item">
+          <div class="portfolio-thumb">🏢</div>
+          <div style="flex:1"><div style="font-size:0.875rem;font-weight:600">3-Storey Office Complex · Enugu</div><div style="font-size:0.78rem;color:var(--slate);margin-top:2px">Completed Aug 2023 · ₦68M · Client: ABC Corp</div><div style="margin-top:5px"><span class="badge badge-green">Client Rating: ⭐⭐⭐⭐⭐</span></div></div>
+        </div>
+        <div class="portfolio-item">
+          <div class="portfolio-thumb">🏭</div>
+          <div style="flex:1"><div style="font-size:0.875rem;font-weight:600">Warehouse · Nnebisi Road, Onitsha</div><div style="font-size:0.78rem;color:var(--slate);margin-top:2px">Completed Mar 2023 · ₦31M · Client: Nwosu Ltd</div><div style="margin-top:5px"><span class="badge badge-green">Client Rating: ⭐⭐⭐⭐☆</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">📢 Featured Listing Subscription</div></div>
+      <div class="card-body">
+        <div style="background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:8px;padding:20px;color:#fff;margin-bottom:14px">
+          <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--slate-light);margin-bottom:4px">Featured Engineer Profile</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--gold);margin-bottom:8px">₦15,000 / month</div>
+          <ul style="color:var(--slate-light);font-size:0.8rem;line-height:2;list-style:none">
+            <li>✅ Priority placement in project notifications</li>
+            <li>✅ Portfolio shown to prospective clients</li>
+            <li>✅ "Featured Engineer" badge on your profile</li>
+            <li>✅ 3× more project invitations on average</li>
+          </ul>
+        </div>
+        <button class="btn-sm btn-gold" style="padding:10px 24px" onclick="showToast('✅ Featured listing activated — ₦15,000/month.','success')">Activate Featured Listing</button>
+      </div>
+    </div>
+  </div>
+  <div id="e-panel-arbitration" style="display:none">
+    <div class="page-header"><div class="page-title">Arbitration</div><div class="page-sub">File a dispute with the platform lawyer. Fee: ₦75,000 + 0.5% of disputed amount.</div></div>
+    <div class="alert alert-blue">ℹ️ No active arbitration cases. Use the button below if a dispute has arisen.</div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">⚖️ File Arbitration</div></div>
+      <div class="card-body">
+        <p style="font-size:0.875rem;color:var(--slate);line-height:1.7;margin-bottom:16px">Filing fee: ₦75,000 flat + 0.5% of the disputed sum. Both parties will be notified and the process documented by the platform lawyer assigned to your region.</p>
+        <button class="btn-sm btn-navy" onclick="engineerFileArbitration()">⚖️ File Arbitration Request</button>
+      </div>
+    </div>
+  </div>`;
+})();
+
+// Add new client panels for contract and final inspection
+(function addClientPanels() {
+  const main = document.querySelector('#view-client .main-content');
+  if (!main) return;
+  // Add final inspection card to overview alert area
+  const overviewPanel = document.getElementById('c-overview');
+  if (overviewPanel) {
+    const inspBtn = document.createElement('div');
+    inspBtn.style.marginTop = '8px';
+    inspBtn.innerHTML = `<button class="btn-sm btn-navy" onclick="openModal('modal-final-inspection')" style="margin-top:4px">🏁 Request Final Inspection & Handover</button>`;
+    const alertDiv = overviewPanel.querySelector('.alert');
+    if (alertDiv) alertDiv.parentNode.insertBefore(inspBtn, alertDiv.nextSibling);
+  }
+  // Add AI material count button to CCTV panel
+  const cctvPanel = document.getElementById('c-cctv');
+  if (cctvPanel) {
+    const countBtn = document.createElement('div');
+    countBtn.style.marginBottom = '14px';
+    countBtn.innerHTML = `<button class="btn-sm btn-navy" onclick="openModal('modal-material-count')">🤖 View AI Material Count</button>`;
+    const grid = cctvPanel.querySelector('.cctv-grid');
+    if (grid) grid.parentNode.insertBefore(countBtn, grid);
+  }
+})();
+
+// Add region panel to lawyer dashboard
+(function addLawyerRegionPanel() {
+  const main = document.querySelector('#view-lawyer .main-content');
+  if (!main) return;
+  const panel = document.createElement('div');
+  panel.id = 'l-region';
+  panel.style.display = 'none';
+  panel.innerHTML = `
+    <div class="page-header"><div class="page-title">Assigned Region</div><div class="page-sub">Your jurisdiction for land verifications and dispute proceedings.</div></div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">📍 Current Jurisdiction</div></div>
+      <div class="card-body">
+        <div style="margin-bottom:18px">
+          <span class="region-badge">📍 Ebonyi State — Primary Region</span>
+        </div>
+        <div class="timeline-item"><div class="timeline-dot dot-green"></div><div><div class="timeline-title">Primary: Ebonyi State (All LGAs)</div><div class="timeline-meta">Land verifications, contracts, arbitrations</div></div></div>
+        <div class="timeline-item"><div class="timeline-dot dot-blue"></div><div><div class="timeline-title">Secondary: Enugu State</div><div class="timeline-meta">Available for overflow cases when primary lawyer unavailable</div></div></div>
+        <div style="margin-top:16px;padding:14px;background:var(--amber-pale);border:1px solid rgba(201,146,42,0.3);border-radius:8px;font-size:0.83rem;color:#7A5214">
+          ⚠️ <strong>Location-based assignment:</strong> Dispute arbitration cases are only assigned to lawyers physically within the case's region. Remote lawyers may handle verifications and contract drafting only.
+        </div>
+        <div style="margin-top:14px"><button class="btn-sm btn-navy" onclick="showToast('Region update request submitted to Vistru admin.','info')">🔄 Request Region Update</button></div>
+      </div>
+    </div>`;
+  main.appendChild(panel);
+})();
 </script>
 </body>
 </html>
